@@ -300,7 +300,17 @@ order: ["intro.md", "guide/", "faq.md"]
 
 `/docs/...` 为真实 URL，刷新可还原；页内切换用 `router.push` + 组件状态，不整页刷新。
 
-**样式复用**：原样拷贝 `G:\Project\ZDocs\public\css` 到 `web/src/assets/css`，保留 `materialize.css`。React 组件沿用原 DOM 类名与层级（`.main-container > .navbar / .categories / .main-articles`），使 `style.css` 不改一行即可生效；只把 jQuery 的 DOM 操作换成状态驱动。`webfonts`、`images`、`favicon.ico` 一并迁移。
+**样式**：以 ZDocs 的视觉为基准重写为 token 驱动的四层结构，由 Vite 打包，不再直接引用上游 `style.css`。
+
+```
+web/src/styles/
+├── tokens.css      颜色、间距、圆角、阴影、层级；暗色只覆盖这一层
+├── base.css        reset、排版基线、滚动条、焦点与减动画
+├── layout.css      外壳、顶栏、侧栏、正文区、右栏目录、响应式
+└── components.css  按钮、表单、正文排版、编辑器、diff、卡片、后台
+```
+
+组件沿用原 DOM 类名便于对照，但选择器已扁平化；`materialize.css` 与 `material-icons.css` 已移除，只保留 `atom-one-*`、`cherry-markdown`、`font-awesome` 与 Open Sans。`webfonts`、`images`、`favicon.ico` 继续复用。
 
 **状态**：`AuthContext` 管用户与角色，数据用 `fetch` 封装按需拉取；树懒加载；草稿保存在编辑器内存，保存失败不退编辑态。
 
@@ -435,6 +445,7 @@ config → store → source ─┐
 - S3 上传接口与编辑器接入
 - 后台来源、用户组、用户、设置、索引重建
 - React 前端：ZDocs 样式、Mermaid、代码高亮、右栏目录、明暗主题、拖入导入、排序
+- 样式重写为 tokens/base/layout/components 四层，去 Materialize，补移动端抽屉与焦点样式
 
 已验证：迁移在 PostgreSQL 16 上执行成功，`/healthz` 连库通过，`/api/v1/site`、`/api/v1/sources`、SPA 回退均返回预期结果，匿名与登录两种目录树过滤正确。
 

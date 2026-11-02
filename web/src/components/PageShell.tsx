@@ -14,6 +14,7 @@ interface Props {
 
 export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props) {
   const [site, setSite] = useState<SiteInfo>({ name: 'ZDocs', description: '', public_read: true })
+  const [menuOpen, setMenuOpen] = useState(false)
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
 
@@ -31,9 +32,9 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
         <i className="fas fa-sun" />
         <i className="fas fa-moon" />
       </div>
-      <div className="main-container row">
+      <div className={`main-container${menuOpen ? ' nav-open' : ''}`}>
         <div className="navbar">
-          <span className="menu">
+          <span className="menu" onClick={() => setMenuOpen((open) => !open)}>
             <i className="fas fa-bars" />
           </span>
           <span className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>

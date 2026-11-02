@@ -29,7 +29,9 @@ export function Sidebar({ slug, tree, currentPath, canEdit, onReorder, onCreateD
           const active = currentPath === node.path || currentPath.startsWith(`${node.path}/`)
           return (
             <li key={node.path} className={active ? 'active' : undefined}>
-              <a onClick={() => go(node.path)}>{node.name}</a>
+              <a className="dir" onClick={() => go(node.path)}>
+                {node.name}
+              </a>
               {renderNodes(node.children ?? [], node.path)}
             </li>
           )
