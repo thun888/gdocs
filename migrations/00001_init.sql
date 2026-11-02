@@ -60,6 +60,7 @@ CREATE TABLE sources (
 CREATE TABLE doc_meta (
     source_id  bigint        NOT NULL REFERENCES sources(id) ON DELETE CASCADE,
     path       varchar(1024) NOT NULL,
+    type       varchar(8)    NOT NULL DEFAULT 'doc',
     blob_sha   varchar(64)   NOT NULL DEFAULT '',
     title      varchar(255)  NOT NULL DEFAULT '',
     sort       int           NOT NULL DEFAULT 0,

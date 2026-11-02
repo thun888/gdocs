@@ -61,6 +61,7 @@ type Source struct {
 type DocMeta struct {
 	SourceID  uint64    `gorm:"primaryKey"`
 	Path      string    `gorm:"primaryKey;size:1024"`
+	Type      string    `gorm:"column:type;size:8;not null;default:doc"`
 	BlobSHA   string    `gorm:"size:64;not null;default:''"`
 	Title     string    `gorm:"size:255;not null;default:''"`
 	Sort      int       `gorm:"column:sort;not null;default:0"`

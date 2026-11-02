@@ -13,8 +13,11 @@ import (
 
 	"github.com/thun888/zdocs-go/internal/auth"
 	"github.com/thun888/zdocs-go/internal/config"
+	"github.com/thun888/zdocs-go/internal/cryptox"
+	"github.com/thun888/zdocs-go/internal/doc"
 	"github.com/thun888/zdocs-go/internal/httpapi"
 	"github.com/thun888/zdocs-go/internal/server"
+	"github.com/thun888/zdocs-go/internal/storage"
 	"github.com/thun888/zdocs-go/internal/store"
 )
 
@@ -55,9 +58,37 @@ func main() {
 		os.Exit(1)
 	}
 
+	box, err := cryptox.NewBox(cfg.Server.SessionKey)
+	if err != nil {
+		slog.Error("初始化加密组件失败", "error", err)
+		os.Exit(1)
+	}
+	docs := doc.New(cfg, st, box)
+	if err := docs.SeedSources(context.Background()); err != nil {
+		slog.Warn("写入来源种子失败", "error", err)
+	}
+	go warmIndex(cfg, st, docs)
+
+	var uploader *storage.Uploader
+	if cfg.S3.Endpoint != "" && cfg.S3.Bucket != "" {
+		uploader, err = storage.New(cfg.S3)
+		if err != nil {
+			slog.Error("初始化对象存储失败", "error", err)
+			os.Exit(1)
+		}
+	}
+
+	api := httpapi.New(httpapi.Options{
+		Config: cfg,
+		Store:  st,
+		Auth:   authSvc,
+		Doc:    docs,
+		Upload: uploader,
+	})
+
 	srv := &http.Server{
 		Addr:              cfg.Server.Addr,
-		Handler:           server.New(cfg, db, httpapi.New(cfg, st, authSvc)),
+		Handler:           server.New(cfg, db, api),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 
@@ -80,4 +111,20 @@ func main() {
 		slog.Error("优雅关闭失败", "error", err)
 	}
 	slog.Info("服务已停止")
+}
+
+func warmIndex(cfg *config.Config, st *store.Store, docs *doc.Service) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Minute)
+	defer cancel()
+
+	list, err := st.ListSources(ctx, true)
+	if err != nil {
+		slog.Warn("读取来源失败", "error", err)
+		return
+	}
+	for i := range list {
+		if err := docs.Sync(ctx, &list[i]); err != nil {
+			slog.Warn("初始化文档索引失败", "source", list[i].Slug, "error", err)
+		}
+	}
 }

@@ -214,17 +214,17 @@ func (s *Service) refreshTokens(ctx context.Context, user *store.User, sess *sto
 		return err
 	}
 
-	claims, err := s.oidc.userInfo(ctx, token.AccessToken)
-	if err != nil {
-		return err
-	}
-	if claims.Sub == "" || claims.Sub != user.Subject {
-		return fmt.Errorf("身份不匹配")
-	}
-
 	newRefresh := token.RefreshToken
 	if newRefresh == "" {
 		newRefresh = refresh
+	}
+
+	claims, err := s.oidc.userInfo(ctx, token.AccessToken)
+	if err != nil {
+		return s.sess.saveTokens(ctx, sess, token.AccessToken, newRefresh, token.Expiry)
+	}
+	if claims.Sub == "" || claims.Sub != user.Subject {
+		return fmt.Errorf("身份不匹配")
 	}
 	if _, err := s.syncIdentity(ctx, user, claims); err != nil {
 		return err

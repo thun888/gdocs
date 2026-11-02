@@ -64,9 +64,9 @@ func (s *Store) SyncGroups(ctx context.Context, userID uint64, specs []GroupSpec
 func (s *Store) GroupsByUser(ctx context.Context, userID uint64) ([]Group, error) {
 	var groups []Group
 	err := s.db.WithContext(ctx).
-		Joins("JOIN user_groups ug ON ug.group_id = groups.id").
+		Joins("JOIN user_groups ug ON ug.group_id = \"groups\".id").
 		Where("ug.user_id = ?", userID).
-		Order("groups.code").
+		Order("\"groups\".code").
 		Find(&groups).Error
 	return groups, err
 }
@@ -80,10 +80,10 @@ func (s *Store) ListGroups(ctx context.Context) ([]GroupRow, error) {
 	var rows []GroupRow
 	err := s.db.WithContext(ctx).
 		Model(&Group{}).
-		Select("groups.*, count(ug.user_id) as members").
-		Joins("LEFT JOIN user_groups ug ON ug.group_id = groups.id").
-		Group("groups.id").
-		Order("groups.code").
+		Select("\"groups\".*, count(ug.user_id) as members").
+		Joins("LEFT JOIN user_groups ug ON ug.group_id = \"groups\".id").
+		Group("\"groups\".id").
+		Order("\"groups\".code").
 		Scan(&rows).Error
 	return rows, err
 }
