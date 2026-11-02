@@ -78,11 +78,12 @@ function texSource(raw: string): string {
   return value
 }
 
-function renderMath(root: HTMLElement): void {
-  const nodes = root.querySelectorAll<HTMLElement>('.Cherry-InlineMath, .Cherry-Math')
+export function renderMathIn(root: HTMLElement): void {
+  const nodes = root.querySelectorAll<HTMLElement>('.Cherry-InlineMath:not([data-math-done]), .Cherry-Math:not([data-math-done])')
   nodes.forEach((node) => {
     const source = node.textContent ?? ''
     if (!source.trim()) return
+    node.dataset.mathDone = '1'
     const displayMode = node.classList.contains('Cherry-Math') || source.trim().startsWith('$$')
     try {
       katex.render(texSource(source), node, {
@@ -98,7 +99,7 @@ function renderMath(root: HTMLElement): void {
 }
 
 export async function enhance(root: HTMLElement, dark: boolean): Promise<void> {
-  renderMath(root)
+  renderMathIn(root)
 
   if (!mermaidReady) {
     mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' })

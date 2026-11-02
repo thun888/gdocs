@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ApiError, api } from '../api'
 import { useAuth } from '../auth'
@@ -41,6 +41,7 @@ export function DocPage() {
   const [saving, setSaving] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [catalog, setCatalog] = useState<{ id: string; text: string }[]>([])
+  const autoEditApplied = useRef('')
 
   const isDoc = currentPath.toLowerCase().endsWith('.md')
 
@@ -86,6 +87,16 @@ export function DocPage() {
     setShowHistory(false)
     void loadDoc()
   }, [loadDoc])
+
+  useEffect(() => {
+    if (!doc || !canEdit) return
+    const key = `${slug}:${doc.path}`
+    if (autoEditApplied.current === key) return
+    autoEditApplied.current = key
+    if (new URLSearchParams(window.location.search).get('edit') === '1') {
+      setEditing(true)
+    }
+  }, [doc, canEdit, slug])
 
   const save = useCallback(async () => {
     if (!doc || saving) return

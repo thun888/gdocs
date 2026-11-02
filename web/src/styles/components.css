@@ -399,6 +399,47 @@ body.theme-dark .cherry .cherry-toolbar {
   background: var(--bg-secondary);
 }
 
+.cherry-previewer {
+  background: var(--bg-content);
+  color: var(--text-color);
+}
+
+.cherry-previewer h1,
+.cherry-previewer h2,
+.cherry-previewer h3,
+.cherry-previewer h4,
+.cherry-previewer h5,
+.cherry-previewer h6,
+.cherry-previewer p,
+.cherry-previewer li,
+.cherry-previewer td,
+.cherry-previewer th {
+  color: var(--text-color);
+}
+
+.cherry-previewer a {
+  color: var(--primary-color);
+}
+
+.cherry-previewer code {
+  background: var(--code-bg);
+  color: var(--code-color);
+}
+
+.cherry-previewer blockquote {
+  border-color: var(--border-color);
+  color: var(--text-light);
+}
+
+.cherry-previewer table th {
+  background: var(--table-header-bg);
+}
+
+.cherry-previewer table th,
+.cherry-previewer table td {
+  border-color: var(--border-light);
+}
+
 /* 改动记录与 diff */
 .history-panel {
   margin-top: var(--space-6);
