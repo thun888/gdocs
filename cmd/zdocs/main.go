@@ -11,7 +11,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/thun888/zdocs-go/internal/auth"
 	"github.com/thun888/zdocs-go/internal/config"
+	"github.com/thun888/zdocs-go/internal/httpapi"
 	"github.com/thun888/zdocs-go/internal/server"
 	"github.com/thun888/zdocs-go/internal/store"
 )
@@ -46,9 +48,16 @@ func main() {
 		}
 	}
 
+	st := store.New(db)
+	authSvc, err := auth.New(cfg, st)
+	if err != nil {
+		slog.Error("初始化认证服务失败", "error", err)
+		os.Exit(1)
+	}
+
 	srv := &http.Server{
 		Addr:              cfg.Server.Addr,
-		Handler:           server.New(cfg, db),
+		Handler:           server.New(cfg, db, httpapi.New(cfg, st, authSvc)),
 		ReadHeaderTimeout: 5 * time.Second,
 	}
 

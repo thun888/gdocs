@@ -36,6 +36,7 @@ type Session struct {
 	UID             uint64    `gorm:"not null;index"`
 	AccessTokenEnc  []byte    `gorm:"type:bytea"`
 	RefreshTokenEnc []byte    `gorm:"type:bytea"`
+	TokenExpiresAt  time.Time `gorm:"not null"`
 	ExpiresAt       time.Time `gorm:"not null;index"`
 	LastSeenAt      time.Time `gorm:"not null"`
 	IP              string    `gorm:"size:64;not null;default:''"`

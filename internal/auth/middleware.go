@@ -1,0 +1,107 @@
+package auth
+
+import (
+	"crypto/subtle"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
+	"github.com/thun888/zdocs-go/internal/store"
+)
+
+const (
+	ctxUser = "zdocs.user"
+	ctxSID  = "zdocs.sid"
+)
+
+func abort(c *gin.Context, status int, message string) {
+	c.AbortWithStatusJSON(status, gin.H{"code": status, "message": message})
+}
+
+func User(c *gin.Context) (*store.User, bool) {
+	value, ok := c.Get(ctxUser)
+	if !ok {
+		return nil, false
+	}
+	user, ok := value.(*store.User)
+	return user, ok
+}
+
+func SessionID(c *gin.Context) (string, bool) {
+	value, ok := c.Get(ctxSID)
+	if !ok {
+		return "", false
+	}
+	sid, ok := value.(string)
+	return sid, ok
+}
+
+func (s *Service) Optional() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		sid, ok := s.sess.sessionID(c)
+		if !ok {
+			c.Next()
+			return
+		}
+		user, _, err := s.CurrentUser(c.Request.Context(), sid)
+		if err != nil {
+			s.sess.clearCookie(c)
+			c.Next()
+			return
+		}
+		c.Set(ctxUser, user)
+		c.Set(ctxSID, sid)
+		c.Next()
+	}
+}
+
+func (s *Service) RequireAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		if _, ok := User(c); !ok {
+			abort(c, http.StatusUnauthorized, "未登录")
+			return
+		}
+		c.Next()
+	}
+}
+
+func (s *Service) requireRole(role string) gin.HandlerFunc {
+	return func(c *gin.Context) {
+		user, ok := User(c)
+		if !ok {
+			abort(c, http.StatusUnauthorized, "未登录")
+			return
+		}
+		if !roleAtLeast(user.Role, role) {
+			abort(c, http.StatusForbidden, "权限不足")
+			return
+		}
+		c.Next()
+	}
+}
+
+func (s *Service) RequireEditor() gin.HandlerFunc { return s.requireRole("editor") }
+
+func (s *Service) RequireAdmin() gin.HandlerFunc { return s.requireRole("admin") }
+
+func (s *Service) VerifyCSRF() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		switch c.Request.Method {
+		case http.MethodGet, http.MethodHead, http.MethodOptions:
+			c.Next()
+			return
+		}
+		sid, ok := SessionID(c)
+		if !ok {
+			abort(c, http.StatusUnauthorized, "未登录")
+			return
+		}
+		header := c.GetHeader("X-CSRF-Token")
+		want := s.sess.csrfToken(sid)
+		if header == "" || subtle.ConstantTimeCompare([]byte(header), []byte(want)) != 1 {
+			abort(c, http.StatusForbidden, "CSRF 校验失败")
+			return
+		}
+		c.Next()
+	}
+}

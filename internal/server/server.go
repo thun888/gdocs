@@ -13,6 +13,7 @@ import (
 	"gorm.io/gorm"
 
 	"github.com/thun888/zdocs-go/internal/config"
+	"github.com/thun888/zdocs-go/internal/httpapi"
 	"github.com/thun888/zdocs-go/internal/web"
 )
 
@@ -21,12 +22,13 @@ type Server struct {
 	db  *gorm.DB
 }
 
-func New(cfg *config.Config, db *gorm.DB) *gin.Engine {
+func New(cfg *config.Config, db *gorm.DB, api *httpapi.API) *gin.Engine {
 	s := &Server{cfg: cfg, db: db}
 
 	r := gin.New()
 	r.Use(gin.Recovery(), requestLogger())
 	r.GET("/healthz", s.healthz)
+	api.Register(r)
 	s.mountStatic(r)
 	return r
 }

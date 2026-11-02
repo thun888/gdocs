@@ -33,6 +33,7 @@ CREATE TABLE sessions (
     uid               bigint      NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     access_token_enc  bytea,
     refresh_token_enc bytea,
+    token_expires_at  timestamptz NOT NULL DEFAULT now(),
     expires_at        timestamptz NOT NULL,
     last_seen_at      timestamptz NOT NULL DEFAULT now(),
     ip                varchar(64) NOT NULL DEFAULT '',
