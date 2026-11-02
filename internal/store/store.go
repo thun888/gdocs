@@ -2,6 +2,8 @@ package store
 
 import (
 	"fmt"
+	"log"
+	"os"
 	"time"
 
 	"gorm.io/driver/postgres"
@@ -12,9 +14,13 @@ import (
 )
 
 func Open(cfg config.Database) (*gorm.DB, error) {
-	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Warn),
+	gormLogger := logger.New(log.New(os.Stdout, "", log.LstdFlags), logger.Config{
+		SlowThreshold:             time.Second,
+		LogLevel:                  logger.Warn,
+		IgnoreRecordNotFoundError: true,
 	})
+
+	db, err := gorm.Open(postgres.Open(cfg.DSN), &gorm.Config{Logger: gormLogger})
 	if err != nil {
 		return nil, fmt.Errorf("连接数据库: %w", err)
 	}

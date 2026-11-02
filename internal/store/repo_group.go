@@ -2,7 +2,6 @@ package store
 
 import (
 	"context"
-	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -22,16 +21,15 @@ func (s *Store) SyncGroups(ctx context.Context, userID uint64, specs []GroupSpec
 
 		for _, spec := range specs {
 			var g Group
-			err := tx.Where("code = ?", spec.Code).First(&g).Error
-			switch {
-			case errors.Is(err, gorm.ErrRecordNotFound):
+			if err := tx.Where("code = ?", spec.Code).Limit(1).Find(&g).Error; err != nil {
+				return err
+			}
+			if g.ID == 0 {
 				g = Group{Code: spec.Code, Name: spec.Name, Type: spec.Type, Role: "viewer", LastSeenAt: &now}
 				if err := tx.Create(&g).Error; err != nil {
 					return err
 				}
-			case err != nil:
-				return err
-			default:
+			} else {
 				if err := tx.Model(&g).Updates(map[string]any{
 					"name":         spec.Name,
 					"type":         spec.Type,

@@ -9,9 +9,10 @@ interface Props {
   breadcrumb?: ReactNode
   sidebar?: ReactNode
   children: ReactNode
+  onDropFiles?: (files: File[]) => void
 }
 
-export function PageShell({ breadcrumb, sidebar, children }: Props) {
+export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props) {
   const [site, setSite] = useState<SiteInfo>({ name: 'ZDocs', description: '', public_read: true })
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
@@ -63,7 +64,20 @@ export function PageShell({ breadcrumb, sidebar, children }: Props) {
           </span>
         </div>
         {sidebar}
-        <div className="main-articles">{children}</div>
+        <div
+          className="main-articles"
+          onDragOver={(event) => {
+            if (onDropFiles) event.preventDefault()
+          }}
+          onDrop={(event) => {
+            if (!onDropFiles) return
+            event.preventDefault()
+            const files = Array.from(event.dataTransfer.files).filter((file) => /\.md$/i.test(file.name))
+            if (files.length > 0) onDropFiles(files)
+          }}
+        >
+          {children}
+        </div>
       </div>
     </>
   )

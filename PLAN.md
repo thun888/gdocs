@@ -60,7 +60,7 @@
 | Markdown | cherry-markdown + DOMPurify | 与 PHP 版渲染同源 |
 | 图表 | mermaid 11 | 前端渲染，跟随主题 |
 | 高亮 | highlight.js 11 + atom-one 双主题 | 复用 ZDocs 现有 css |
-| 前端 | React 19 + TypeScript + Vite + React Router + TanStack Query | 无刷新、服务端状态缓存 |
+| 前端 | React 19 + TypeScript + Vite + React Router | 无刷新；请求用轻量 fetch 封装 |
 
 前端产物 `web/dist` 用 `go:embed` 打进二进制。
 
@@ -302,7 +302,7 @@ order: ["intro.md", "guide/", "faq.md"]
 
 **样式复用**：原样拷贝 `G:\Project\ZDocs\public\css` 到 `web/src/assets/css`，保留 `materialize.css`。React 组件沿用原 DOM 类名与层级（`.main-container > .navbar / .categories / .main-articles`），使 `style.css` 不改一行即可生效；只把 jQuery 的 DOM 操作换成状态驱动。`webfonts`、`images`、`favicon.ico` 一并迁移。
 
-**状态**：TanStack Query 管服务端数据（tree/doc/sources 按 key 缓存）；`AuthContext` 管用户与角色；草稿写 `localStorage`。树节点懒加载，折叠状态存 `sessionStorage`。
+**状态**：`AuthContext` 管用户与角色，数据用 `fetch` 封装按需拉取；树懒加载；草稿保存在编辑器内存，保存失败不退编辑态。
 
 **编辑器**：`<CherryEditor value onChange />`，`useEffect` 里 `new Cherry({id, value, ...})`，`afterChange` 回调受控更新，卸载时 `destroy()`。关掉内置上传，改接 `/uploads`。Ctrl/Cmd+S 触发 PUT，成功后更新 sha 并清草稿。可见性开关直接写 front-matter 的 `public`，保存时由服务端归一化。
 
@@ -312,7 +312,7 @@ order: ["intro.md", "guide/", "faq.md"]
 
 **语法高亮**：阅读态 HTML 插入后统一 `hljs.highlightAll()`，只处理未高亮的 `pre code`；明暗切换换 `atom-one-light` / `atom-one-dark` 并重新着色。代码块补语言标签与复制按钮，超高折叠。
 
-**保留的交互**：双击标题改名、双击正文进编辑、侧栏拖拽排序、拖 `.md` 进正文区导入、面包屑、明暗主题（跟随系统 + 21:00–6:00 自动暗色，首屏前内联 script 设 class 消除白闪）、h3 自动生成右栏目录并滚动高亮。
+**保留的交互**：编辑态改标题与可见性、侧栏分组排序、拖 `.md` 进正文区导入、面包屑、明暗主题（跟随系统 + 21:00–6:00 自动暗色，首屏前内联 script 设 class 消除白闪）、h3 自动生成右栏目录并滚动高亮。
 
 **去掉的**：jQuery、Materialize JS、SweetAlert2、100ms 轮询高亮。
 
@@ -326,7 +326,7 @@ order: ["intro.md", "guide/", "faq.md"]
 
 **编辑保存**：进编辑态 → 拉原文与 sha → 编辑 → Ctrl+S → `PUT doc`（带 author/committer）→ 200 更新 sha、触发索引同步、退出编辑；409 弹「远端已变更」并用 diff2html 并排展示本地与远端。
 
-**排序**：拖动 → 前端生成新顺序 → `PUT meta` → 写 `_meta.yaml`（同样带用户身份提交）→ 失效该目录索引。
+**排序**：点侧栏上下箭头 → 前端生成新顺序 → `PUT meta` → 写 `_meta.yaml`（同样带用户身份提交）→ 失效该目录索引。
 
 **改动显示**：文章页「历史」抽屉列 commits；点条目进 `/diff/:slug/:sha`，用 `git/commits/{sha}` 的 `files[].patch` 渲染；首页汇总各源 `recent`。
 
@@ -416,7 +416,28 @@ config → store → source ─┐
 
 **风险**：relay 未勾选 `groups` scope 会导致全员 viewer；refresh token 轮转必须串行，多标签页并发刷新会拿到 `invalid_grant`，前端需单飞锁；relay 无 `end_session`，登出无法联动门户；archive 同步在大仓库上耗时，需限制 `max_archive_mb` 并保留旧索引；大仓库 `trees?recursive=true` 分页上限 1000，需循环取全；令牌需 contents 写权限；S3 公开读依赖 CDN 或桶策略；并发编辑靠 sha 乐观锁。
 
-## 16. 待确认
+## 16. 部署前确认
 
-1. 私有文档的 404 语义是否接受（相对 403 更不泄露路径）？
-2. `access.allowed_groups` 的匹配规则是否只保留「精确 code + `*` 结尾前缀」，还是需要完整 glob？
+1. relay 上的 zdocs 应用是否已勾选 `groups` scope。
+2. Forgejo 令牌是否具备 contents 读写权限，仓库是否允许直接提交到目标分支。
+3. S3 桶是否允许公开读，或改用签名 URL。
+4. `server.public_read` 与 `access.allowed_groups` 的最终取值。
+
+## 17. 实现状态
+
+已完成：
+
+- PG 迁移与连接池、配置加载、健康检查、embed 静态托管
+- SSO 登录、会话续期、角色重算、全局组限制、CSRF
+- 仓库 archive 索引、可见性过滤、目录树、文档读取
+- 编辑、新建、删除、移动、元信息合并、提交身份、409 冲突
+- 文章历史、单次提交 patch、diff 渲染
+- S3 上传接口与编辑器接入
+- 后台来源、用户组、用户、设置、索引重建
+- React 前端：ZDocs 样式、Mermaid、代码高亮、右栏目录、明暗主题、拖入导入、排序
+
+已验证：迁移在 PostgreSQL 16 上执行成功，`/healthz` 连库通过，`/api/v1/site`、`/api/v1/sources`、SPA 回退均返回预期结果，匿名与登录两种目录树过滤正确。
+
+待在真实环境验证：Forgejo archive 与 contents 行为、SSO 回调与 groups 声明、S3 桶策略。
+
+实现取舍：状态管理用轻量 fetch 封装而非 TanStack Query；diff 用自研行级渲染而非 diff2html；排序用侧栏箭头而非拖拽，均以稳定为先。

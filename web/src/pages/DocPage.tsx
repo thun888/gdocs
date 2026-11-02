@@ -189,6 +189,23 @@ export function DocPage() {
     }
   }
 
+  const importFiles = async (files: File[]) => {
+    const category = isDoc ? currentPath.slice(0, currentPath.lastIndexOf('/') + 1) : currentPath
+    try {
+      const payload = {
+        category,
+        files: await Promise.all(
+          files.map(async (file) => ({ name: file.name, content: await file.text() })),
+        ),
+      }
+      await api.post(`/sources/${slug}/import`, payload)
+      await loadTree()
+      window.alert(`已导入 ${files.length} 个文件`)
+    } catch (err) {
+      window.alert(err instanceof ApiError ? err.message : '导入失败')
+    }
+  }
+
   const reorder = async (dir: string, names: string[]) => {
     try {
       await api.put(`/sources/${slug}/meta`, { path: dir, order: names })
@@ -237,7 +254,7 @@ export function DocPage() {
   const title = doc?.meta.title || directory?.name || ''
 
   return (
-    <PageShell breadcrumb={breadcrumb} sidebar={sidebar}>
+    <PageShell breadcrumb={breadcrumb} sidebar={sidebar} onDropFiles={canEdit ? importFiles : undefined}>
       {loading && <p>加载中…</p>}
       {!loading && error && (
         <div className="article-content">
