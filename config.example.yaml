@@ -1,0 +1,55 @@
+server:
+  addr: ":8080"
+  base_url: "http://127.0.0.1:8080"
+  session_key: "${ZDOCS_SESSION_KEY}"
+  public_read: true
+
+database:
+  dsn: "postgres://zdocs:zdocs@127.0.0.1:5432/zdocs?sslmode=disable"
+  max_open: 20
+  max_idle: 5
+  auto_migrate: false
+
+oauth:
+  issuer: "https://gzhu-sso.school.hzchu.top"
+  client_id: "zdocs"
+  client_secret: "${OAUTH_CLIENT_SECRET}"
+  redirect_url: "http://127.0.0.1:8080/api/v1/auth/callback"
+  scopes: ["openid", "profile", "email", "groups"]
+  groups_claim: "groups"
+  bootstrap_admin: []
+
+access:
+  allowed_groups: []
+  deny_message: "当前账号不在 ZDocs 的访问范围内"
+
+git:
+  bot_name: "ZDocs"
+  bot_email: "zdocs@example.com"
+
+index:
+  ttl_minutes: 10
+  sync_on_write: true
+  max_archive_mb: 50
+
+s3:
+  endpoint: "https://s3.example.com"
+  region: "us-east-1"
+  bucket: "zdocs"
+  access_key: "${S3_ACCESS_KEY}"
+  secret_key: "${S3_SECRET_KEY}"
+  path_prefix: "docs/"
+  public_base: "https://cdn.example.com/zdocs"
+  max_size_mb: 10
+  allow_types: ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]
+
+sources:
+  - slug: "handbook"
+    name: "员工手册"
+    base_url: "https://git.example.com"
+    token: "${FORGEJO_TOKEN_HANDBOOK}"
+    owner: "docs"
+    repo: "handbook"
+    branch: "main"
+    root: ""
+    sort: 10

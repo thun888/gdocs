@@ -1,0 +1,7 @@
+/bin/
+/data/
+/config.yaml
+/web/node_modules/
+/internal/web/dist/*
+!/internal/web/dist/index.html
+*.log
