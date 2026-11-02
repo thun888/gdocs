@@ -320,6 +320,8 @@ web/src/styles/
 
 **Mermaid**：```mermaid 代码块提取源码 → `mermaid.render(id, code)` → 替换节点。`securityLevel: 'strict'`、`startOnLoad: false`，主题跟随明暗，切主题重新渲染；失败保留源码并提示。编辑器内由 Cherry 插件实时预览，共用同一份主题配置。
 
+**公式**：Cherry 输出的 `.Cherry-InlineMath` / `.Cherry-Math` 占位节点由 KaTeX 渲染，支持 `$...$`、`$$...$$`、`\(...\)`、`\[...\]`；`trust` 关闭、语法错误保留原文。KaTeX 只处理正文节点，不影响代码块。
+
 **语法高亮**：阅读态 HTML 插入后统一 `hljs.highlightAll()`，只处理未高亮的 `pre code`；明暗切换换 `atom-one-light` / `atom-one-dark` 并重新着色。代码块补语言标签与复制按钮，超高折叠。
 
 **保留的交互**：编辑态改标题与可见性、侧栏分组排序、拖 `.md` 进正文区导入、面包屑、明暗主题（跟随系统 + 21:00–6:00 自动暗色，首屏前内联 script 设 class 消除白闪）、h3 自动生成右栏目录并滚动高亮。
@@ -446,6 +448,7 @@ config → store → source ─┐
 - 后台来源、用户组、用户、设置、索引重建
 - React 前端：ZDocs 样式、Mermaid、代码高亮、右栏目录、明暗主题、拖入导入、排序
 - 样式重写为 tokens/base/layout/components 四层，去 Materialize，补移动端抽屉与焦点样式
+- LaTeX 公式（KaTeX）、Mermaid、代码高亮均在阅读态生效
 
 已验证：迁移在 PostgreSQL 16 上执行成功，`/healthz` 连库通过，`/api/v1/site`、`/api/v1/sources`、SPA 回退均返回预期结果，匿名与登录两种目录树过滤正确。
 

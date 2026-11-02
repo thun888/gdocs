@@ -7,6 +7,7 @@ import { HistoryPanel } from '../components/HistoryPanel'
 import { MarkdownView } from '../components/MarkdownView'
 import { PageShell } from '../components/PageShell'
 import { Sidebar } from '../components/Sidebar'
+import { stripLeadingTitle } from '../markdown'
 import type { DocResponse, TreeNode } from '../types'
 import { useTheme } from '../useTheme'
 
@@ -252,6 +253,7 @@ export function DocPage() {
   const dirChildren = directory?.children ?? (currentPath === '' ? tree : [])
 
   const title = doc?.meta.title || directory?.name || ''
+  const body = useMemo(() => (doc ? stripLeadingTitle(doc.content, doc.meta.title) : ''), [doc])
 
   return (
     <PageShell breadcrumb={breadcrumb} sidebar={sidebar} onDropFiles={canEdit ? importFiles : undefined}>
@@ -319,7 +321,7 @@ export function DocPage() {
               <Editor value={draft} onChange={setDraft} />
             </div>
           ) : (
-            <MarkdownView content={doc.content} dark={dark} />
+            <MarkdownView content={body} dark={dark} />
           )}
 
           {showHistory && <HistoryPanel slug={slug} path={doc.path} onClose={() => setShowHistory(false)} />}
