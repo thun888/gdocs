@@ -3,5 +3,5 @@
 /config.yaml
 /web/node_modules/
 /internal/web/dist/*
-!/internal/web/dist/index.html
+!/internal/web/dist/.keep
 *.log

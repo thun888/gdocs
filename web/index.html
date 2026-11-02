@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#FFFFFF" />
+  <title>ZDocs</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/css/materialize.css" />
+  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/material-icons.css" />
+  <link rel="stylesheet" href="/css/font-awesome.min.css" />
+  <link rel="stylesheet" href="/css/cherry-markdown.min.css" />
+  <link rel="stylesheet" href="/css/atom-one-light.css" />
+  <link rel="stylesheet" href="/css/atom-one-dark.css" />
+</head>
+<body>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('zdocs-theme');
+        var hour = new Date().getHours();
+        var dark = saved ? saved === 'dark' : (hour >= 21 || hour < 6);
+        if (dark) document.body.classList.add('theme-dark');
+      } catch (e) {}
+    })();
+  </script>
+  <div id="root"></div>
+  <script src="/js/cherry-markdown.min.js"></script>
+  <script type="module" src="/src/main.tsx"></script>
+</body>
+</html>
