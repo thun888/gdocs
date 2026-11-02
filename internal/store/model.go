@@ -3,14 +3,14 @@ package store
 import "time"
 
 type User struct {
-	ID          uint64     `gorm:"primaryKey"`
-	Subject     string     `gorm:"size:32;not null;uniqueIndex"`
-	Username    string     `gorm:"size:64;not null"`
-	DisplayName string     `gorm:"size:128;not null;default:''"`
-	Email       string     `gorm:"size:255;not null;default:''"`
-	Class       string     `gorm:"size:128;not null;default:''"`
-	Role        string     `gorm:"size:16;not null;default:viewer"`
-	CreatedAt   time.Time  `gorm:"not null"`
+	ID          uint64    `gorm:"primaryKey"`
+	Subject     string    `gorm:"size:32;not null;uniqueIndex"`
+	Username    string    `gorm:"size:64;not null"`
+	DisplayName string    `gorm:"size:128;not null;default:''"`
+	Email       string    `gorm:"size:255;not null;default:''"`
+	Class       string    `gorm:"size:128;not null;default:''"`
+	Role        string    `gorm:"size:16;not null;default:viewer"`
+	CreatedAt   time.Time `gorm:"not null"`
 	LastLoginAt *time.Time
 }
 
