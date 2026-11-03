@@ -440,33 +440,81 @@ body.theme-dark .cherry .cherry-toolbar {
   border-color: var(--border-light);
 }
 
-/* 改动记录与 diff */
-.history-panel {
-  margin-top: var(--space-6);
-  padding: var(--space-4);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  background: var(--bg-content);
+/* 模态框 */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6);
+  background: rgb(0 0 0 / 40%);
+  animation: modal-fade var(--transition-fast);
 }
 
-.history-head {
+.modal {
+  display: flex;
+  flex-direction: column;
+  width: min(1000px, 100%);
+  max-height: min(84vh, 860px);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  background: var(--bg-content);
+  box-shadow: 0 16px 48px rgb(0 0 0 / 24%);
+  animation: modal-rise var(--transition-fast);
+}
+
+.modal-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: var(--space-2);
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border-light);
   color: var(--text-color);
 }
 
-.history-head a {
-  color: var(--text-light);
+.modal-body {
+  padding: var(--space-4) var(--space-5) var(--space-5);
+  overflow-y: auto;
 }
 
-.history-head a:hover {
+.modal-close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: none;
+  color: var(--text-light);
+  font-size: 14px;
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: var(--bg-hover);
   color: var(--primary-color);
 }
 
+@keyframes modal-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes modal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+}
+
+/* 改动记录与 diff */
 .history-list {
-  max-height: 260px;
+  max-height: 40vh;
   margin: 0;
   padding: 0;
   overflow-y: auto;

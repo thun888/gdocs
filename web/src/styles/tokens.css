@@ -59,6 +59,7 @@
   --z-catalog: 20;
   --z-nav: 100;
   --z-theme: 110;
+  --z-modal: 200;
 }
 
 body.theme-dark {

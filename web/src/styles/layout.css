@@ -381,4 +381,12 @@ body.theme-dark .switch-theme .fa-moon {
     width: 100%;
     margin-bottom: var(--space-2);
   }
+
+  .modal-overlay {
+    padding: var(--space-3);
+  }
+
+  .modal {
+    max-height: calc(100vh - var(--space-8));
+  }
 }
