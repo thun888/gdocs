@@ -23,7 +23,10 @@ function cherry() {
     const originalFocus = proto.focus
     proto.focus = function () {}
     try {
+      // 只借用渲染引擎，挂到游离节点上，避免 Cherry 往 body 末尾插入编辑器界面
       engine = new window.Cherry({
+        el: document.createElement('div'),
+        forceAppend: false,
         engine: {
           global: {
             classicBr: false,
