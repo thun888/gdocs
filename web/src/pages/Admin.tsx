@@ -110,6 +110,8 @@ export function Admin() {
     setMessage('设置已保存')
   }
 
+  const groupByCode = new Map(groups.map((group) => [group.code, group]))
+
   return (
     <PageShell
       breadcrumb={
@@ -245,10 +247,10 @@ export function Admin() {
             <h2 className="admin-panel-title">用户组</h2>
             <p className="admin-hint">上游组来自登录声明，这里为每个组指定站点角色。未列出的组默认 viewer。</p>
             <div className="admin-table-wrap">
-              <table className="admin-table">
+              <table className="admin-table admin-table-groups">
                 <thead>
                   <tr>
-                    <th>组标识</th>
+                    <th>用户组</th>
                     <th>类型</th>
                     <th>成员</th>
                     <th>角色</th>
@@ -258,8 +260,19 @@ export function Admin() {
                 <tbody>
                   {groups.map((group) => (
                     <tr key={group.id}>
-                      <td>{group.code}</td>
-                      <td>{group.type}</td>
+                      <td>
+                        <div className="admin-group-title">{group.name || group.code}</div>
+                        {group.name && group.name !== group.code && (
+                          <div className="admin-group-code">{group.code}</div>
+                        )}
+                      </td>
+                      <td>
+                        {group.type ? (
+                          <span className="admin-badge">{group.type}</span>
+                        ) : (
+                          <span className="admin-muted">—</span>
+                        )}
+                      </td>
                       <td>{group.members}</td>
                       <td>
                         <select
@@ -291,7 +304,7 @@ export function Admin() {
           <section className="admin-panel">
             <h2 className="admin-panel-title">用户</h2>
             <div className="admin-table-wrap">
-              <table className="admin-table">
+              <table className="admin-table admin-table-users">
                 <thead>
                   <tr>
                     <th>姓名</th>
@@ -304,11 +317,34 @@ export function Admin() {
                 <tbody>
                   {users.map((user) => (
                     <tr key={user.id}>
-                      <td>{user.display_name}</td>
+                      <td className="admin-user-name" title={user.display_name}>
+                        {user.display_name}
+                      </td>
                       <td>{user.subject}</td>
-                      <td>{user.role}</td>
-                      <td>{user.groups.join('，')}</td>
-                      <td>{user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN') : '从未'}</td>
+                      <td>
+                        <span className={`admin-badge admin-badge-${user.role}`}>{user.role}</span>
+                      </td>
+                      <td>
+                        <div className="admin-tags">
+                          {user.groups.length === 0 && <span className="admin-muted">无</span>}
+                          {user.groups.map((code) => {
+                            const group = groupByCode.get(code)
+                            return (
+                              <span
+                                key={code}
+                                className={`admin-tag${group?.ignored ? ' is-ignored' : ''}`}
+                                title={group ? `${group.code}${group.ignored ? '（已忽略）' : ''}` : code}
+                              >
+                                {group?.type && <em>{group.type}</em>}
+                                {group?.name || code}
+                              </span>
+                            )
+                          })}
+                        </div>
+                      </td>
+                      <td className="admin-user-login">
+                        {user.last_login_at ? new Date(user.last_login_at).toLocaleString('zh-CN') : '从未'}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

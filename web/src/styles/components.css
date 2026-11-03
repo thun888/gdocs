@@ -769,6 +769,127 @@ body.theme-dark .cherry .cherry-toolbar {
   font-size: 0.85rem;
 }
 
+.admin-table-users {
+  table-layout: fixed;
+  min-width: 760px;
+}
+
+.admin-table-users th:nth-child(1) {
+  width: 13%;
+}
+
+.admin-table-users th:nth-child(2) {
+  width: 14%;
+}
+
+.admin-table-users th:nth-child(3) {
+  width: 9%;
+}
+
+.admin-table-users th:nth-child(4) {
+  width: 44%;
+}
+
+.admin-table-users th:nth-child(5) {
+  width: 20%;
+}
+
+.admin-user-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-user-login {
+  white-space: nowrap;
+}
+
+.admin-group-title {
+  color: var(--text-color);
+  font-weight: 500;
+}
+
+.admin-group-code {
+  margin-top: 2px;
+  color: var(--text-light);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  word-break: break-all;
+}
+
+.admin-muted {
+  color: var(--text-lighter);
+}
+
+.admin-badge {
+  display: inline-block;
+  padding: 0 8px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  background: var(--bg-secondary);
+  color: var(--text-light);
+  font-size: 0.78rem;
+  line-height: 1.8;
+  white-space: nowrap;
+}
+
+.admin-table-groups .admin-badge {
+  font-size: 0.72rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.admin-badge-admin {
+  border-color: transparent;
+  background: var(--code-bg);
+  color: var(--primary-color);
+}
+
+.admin-badge-editor {
+  border-color: transparent;
+  background: rgb(46 160 67 / 12%);
+  color: #2ea043;
+}
+
+body.theme-dark .admin-badge-editor {
+  background: rgb(46 160 67 / 18%);
+  color: #7ee787;
+}
+
+.admin-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.admin-tag {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: baseline;
+  gap: 5px;
+  padding: 0 8px;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-pill);
+  background: var(--bg-secondary);
+  color: var(--text-color);
+  font-size: 0.8rem;
+  line-height: 1.8;
+  word-break: break-all;
+}
+
+.admin-tag em {
+  color: var(--text-lighter);
+  font-size: 0.68rem;
+  font-style: normal;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.admin-tag.is-ignored {
+  border-style: dashed;
+  opacity: 0.5;
+}
+
 .admin-form {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
