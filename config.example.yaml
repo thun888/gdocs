@@ -1,56 +1,89 @@
+## gdocs 配置模板：复制为 config.yaml 后按实际环境修改
+## 支持 ${ENV_NAME} 环境变量展开；变量未设置或存在未知字段时拒绝启动
+## 用法：./gdocs -c config.yaml
+
 server:
   addr: ":8080"
+  # 站点外部访问地址，以 https:// 开头时会话 Cookie 带 Secure
   base_url: "http://127.0.0.1:8080"
+  # 至少 32 字节的随机字符串，可用 openssl rand -base64 32 生成
+  # 用于加密会话中的令牌和签名 Cookie，更换后已有会话全部失效
   session_key: "${GDOCS_SESSION_KEY}"
+  # 匿名可读的全局默认值，文档 front-matter 里的 public 可以单独覆盖
   public_read: true
+  # 只采信这些地址发来的 X-Forwarded-For；反向代理不在本机时填入代理 IP 或 CIDR，
+  # 留空表示一律使用连接地址
   trusted_proxies: []
 
 database:
   dsn: "postgres://gdocs:gdocs@127.0.0.1:5432/gdocs?sslmode=disable"
   max_open: 20
   max_idle: 5
+  # 生产环境建议保持 false，升级时用 ./gdocs -c config.yaml -migrate 手动迁移
   auto_migrate: false
 
 oauth:
+  # 必须与 OIDC 发现文档中的 issuer 完全一致
   issuer: "https://gzhu-sso.school.hzchu.top"
   client_id: "gdocs"
   client_secret: "${OAUTH_CLIENT_SECRET}"
+  # 必须是绝对地址，且与 OIDC 后台登记的回调完全一致，指向 /api/v1/auth/callback
   redirect_url: "http://127.0.0.1:8080/api/v1/auth/callback"
+  # 应用必须被允许返回 groups scope，否则拿不到用户组，所有用户都是 viewer
   scopes: ["openid", "profile", "email", "groups"]
+  # 预留字段，当前版本固定读取 groups 声明
   groups_claim: "groups"
+  # 按 OIDC sub 精确匹配；名单内的账号不受 access.allowed_groups 限制且角色固定为 admin
   bootstrap_admin: []
 
 access:
+  # 允许登录的用户组，空表示不限制；与 code 精确匹配，以 * 结尾时按前缀匹配，命中任意一条即可
   allowed_groups: []
+  # 用户组不匹配时返回的提示
   deny_message: "当前账号不在 gdocs 的访问范围内"
 
+# 提交身份。正常编辑使用登录用户的名称与邮箱；没有登录用户时使用 bot_name，邮箱为空时回落到 bot_email
 git:
   bot_name: "gdocs"
   bot_email: "gdocs@example.com"
 
 index:
+  # 距上次同步超过该时长时，下次读取目录会重建索引，单位分钟
   ttl_minutes: 10
+  # 写入后立即重建索引；开启后每次保存都会多下载一次仓库归档
   sync_on_write: true
+  # 单次下载仓库归档的大小上限，单位 MB
   max_archive_mb: 50
 
+# 图片上传。endpoint 或 bucket 为空时禁用，其他功能不受影响
 s3:
   endpoint: "https://s3.example.com"
   region: "us-east-1"
   bucket: "gdocs"
   access_key: "${S3_ACCESS_KEY}"
   secret_key: "${S3_SECRET_KEY}"
+  # 对象键前缀，最终对象键为 {path_prefix}/{YYYY}/{MM}/{内容哈希前16位}{扩展名}
   path_prefix: "docs/"
+  # 图片公开访问前缀，必须能被浏览器匿名读取；留空时返回站内路径，通常无法直接访问
   public_base: "https://cdn.example.com/gdocs"
+  # 单张图片大小上限，单位 MB
   max_size_mb: 10
+  # 允许的 MIME 类型，留空表示不额外限制；扩展名固定支持 png/jpg/jpeg/gif/webp/svg
   allow_types: ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]
 
+# 仓库来源只在启动时用于初始化数据库，已存在的 slug 不会被配置覆盖；
+# 后续新增、修改、停用在管理后台操作，后台删除由这里初始化的来源后，重启会按配置重建
 sources:
   - slug: "handbook"
     name: "员工手册"
     base_url: "https://git.example.com"
+    # 仓库访问令牌，需具备读写权限；会使用 session_key 加密后写入数据库
     token: "${FORGEJO_TOKEN_HANDBOOK}"
     owner: "docs"
     repo: "handbook"
+    # 分支名，默认为 main；仓库至少需要有一个提交，否则无法下载归档
     branch: "main"
+    # 仓库内子目录，留空表示仓库根目录
     root: ""
+    # 数值小的排在前面
     sort: 10
