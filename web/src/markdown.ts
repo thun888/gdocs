@@ -13,7 +13,7 @@ declare global {
   }
 }
 
-let engine: ReturnType<NonNullable<Window['Cherry']>> | null = null
+let engine: InstanceType<NonNullable<Window['Cherry']>> | null = null
 
 function cherry() {
   if (!engine && window.Cherry) {
