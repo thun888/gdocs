@@ -235,6 +235,7 @@
 
 .article-title {
   width: var(--content-width);
+  max-width: 100%;
   margin: 0 0 var(--space-5);
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-light);
@@ -243,6 +244,51 @@
   font-weight: 300;
   line-height: 1.2;
   outline: none;
+}
+
+/* 文档正文：宽度可拖动调整，默认限制在阅读宽度内 */
+.doc-body {
+  --content-width: min(900px, 100%);
+  position: relative;
+}
+
+.content-resizer {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--content-width);
+  z-index: var(--z-resizer);
+  width: 9px;
+  margin-left: -4px;
+  cursor: col-resize;
+  touch-action: none;
+}
+
+.content-resizer::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 4px;
+  width: 1px;
+  background: var(--border-color);
+  opacity: 0;
+  transition: opacity var(--transition-fast), background-color var(--transition-fast);
+}
+
+.main-articles:hover .content-resizer::before {
+  opacity: 0.45;
+}
+
+.main-articles .content-resizer:hover::before,
+.main-articles .content-resizer.dragging::before,
+.main-articles .content-resizer:focus-visible::before {
+  width: 2px;
+  background: var(--primary-color);
+  opacity: 1;
+}
+
+body.is-resizing {
+  cursor: col-resize;
+  user-select: none;
 }
 
 /* 右栏目录 */
@@ -322,13 +368,9 @@ body.theme-dark .switch-theme .fa-moon {
 
 /* 移动端 */
 @media (max-width: 1200px) {
-  .article-catalog {
+  .article-catalog,
+  .content-resizer {
     display: none;
-  }
-
-  .article-title,
-  .article-content {
-    width: 100%;
   }
 }
 

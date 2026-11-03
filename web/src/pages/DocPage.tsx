@@ -1,7 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { ApiError, api } from '../api'
 import { useAuth } from '../auth'
+import { ContentResizer, MIN_CONTENT_WIDTH, clampContentWidth } from '../components/ContentResizer'
 import { Editor } from '../components/Editor'
 import { HistoryPanel } from '../components/HistoryPanel'
 import { MarkdownView } from '../components/MarkdownView'
@@ -10,6 +12,13 @@ import { Sidebar } from '../components/Sidebar'
 import { stripLeadingTitle } from '../markdown'
 import type { DocResponse, TreeNode } from '../types'
 import { useTheme } from '../useTheme'
+
+const CONTENT_WIDTH_KEY = 'gdocs-content-width'
+
+function storedContentWidth(): number | null {
+  const saved = Number(window.localStorage.getItem(CONTENT_WIDTH_KEY))
+  return Number.isFinite(saved) && saved >= MIN_CONTENT_WIDTH ? saved : null
+}
 
 function findNode(nodes: TreeNode[], target: string): TreeNode | null {
   for (const node of nodes) {
@@ -41,6 +50,7 @@ export function DocPage() {
   const [saving, setSaving] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
   const [catalog, setCatalog] = useState<{ id: string; text: string }[]>([])
+  const [contentWidth, setContentWidth] = useState<number | null>(storedContentWidth)
   const autoEditApplied = useRef('')
 
   const isDoc = currentPath.toLowerCase().endsWith('.md')
@@ -81,6 +91,18 @@ export function DocPage() {
   useEffect(() => {
     void loadTree()
   }, [loadTree])
+
+  useEffect(() => {
+    if (contentWidth === null) window.localStorage.removeItem(CONTENT_WIDTH_KEY)
+    else window.localStorage.setItem(CONTENT_WIDTH_KEY, String(contentWidth))
+  }, [contentWidth])
+
+  useEffect(() => {
+    const onResize = () => setContentWidth((value) => (value === null ? value : clampContentWidth(value)))
+    window.addEventListener('resize', onResize)
+    onResize()
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
 
   useEffect(() => {
     setEditing(false)
@@ -277,7 +299,10 @@ export function DocPage() {
       )}
 
       {!loading && !error && isDoc && doc && (
-        <>
+        <div
+          className="doc-body"
+          style={contentWidth ? ({ '--content-width': `${contentWidth}px` } as CSSProperties) : undefined}
+        >
           <h1 className="article-title">{title}</h1>
 
           {canEdit && !editing && (
@@ -336,7 +361,9 @@ export function DocPage() {
           )}
 
           {showHistory && <HistoryPanel slug={slug} path={doc.path} onClose={() => setShowHistory(false)} />}
-        </>
+
+          <ContentResizer width={contentWidth} onChange={setContentWidth} />
+        </div>
       )}
 
       {!loading && !error && !isDoc && (
