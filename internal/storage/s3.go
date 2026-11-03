@@ -6,7 +6,6 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"fmt"
-	"mime"
 	"net/http"
 	"path"
 	"strings"
@@ -25,6 +24,15 @@ type Uploader struct {
 	publicBase string
 	maxBytes   int64
 	allow      map[string]bool
+}
+
+var extContentTypes = map[string]string{
+	".png":  "image/png",
+	".jpg":  "image/jpeg",
+	".jpeg": "image/jpeg",
+	".gif":  "image/gif",
+	".webp": "image/webp",
+	".svg":  "image/svg+xml",
 }
 
 func New(cfg config.S3) (*Uploader, error) {
@@ -64,7 +72,7 @@ func New(cfg config.S3) (*Uploader, error) {
 
 func (u *Uploader) MaxBytes() int64 { return u.maxBytes }
 
-func (u *Uploader) Put(ctx context.Context, filename string, data []byte, declared string) (string, string, error) {
+func (u *Uploader) Put(ctx context.Context, filename string, data []byte) (string, string, error) {
 	if int64(len(data)) > u.maxBytes {
 		return "", "", fmt.Errorf("文件超过大小限制")
 	}
@@ -72,14 +80,16 @@ func (u *Uploader) Put(ctx context.Context, filename string, data []byte, declar
 		return "", "", fmt.Errorf("文件为空")
 	}
 
-	contentType := http.DetectContentType(data)
-	if declared != "" {
-		if parsed, _, err := mime.ParseMediaType(declared); err == nil {
-			contentType = parsed
-		}
+	contentType, known := extContentTypes[strings.ToLower(path.Ext(filename))]
+	if !known {
+		return "", "", fmt.Errorf("不支持的文件类型")
 	}
 	if len(u.allow) > 0 && !u.allow[contentType] {
 		return "", "", fmt.Errorf("不支持的文件类型: %s", contentType)
+	}
+	sniffed := http.DetectContentType(data)
+	if sniffed != contentType && !(contentType == "image/svg+xml" && strings.HasPrefix(sniffed, "text/plain")) {
+		return "", "", fmt.Errorf("文件内容与扩展名不符")
 	}
 
 	sum := sha256.Sum256(data)
@@ -90,7 +100,11 @@ func (u *Uploader) Put(ctx context.Context, filename string, data []byte, declar
 		key = path.Join(time.Now().Format("2006/01"), name+ext)
 	}
 
-	_, err := u.client.PutObject(ctx, u.bucket, key, bytes.NewReader(data), int64(len(data)), minio.PutObjectOptions{ContentType: contentType})
+	opts := minio.PutObjectOptions{ContentType: contentType}
+	if contentType == "image/svg+xml" {
+		opts.ContentDisposition = "attachment"
+	}
+	_, err := u.client.PutObject(ctx, u.bucket, key, bytes.NewReader(data), int64(len(data)), opts)
 	if err != nil {
 		return "", "", err
 	}

@@ -28,7 +28,7 @@ func (a *API) handleUpload(c *gin.Context) {
 		return
 	}
 
-	url, key, err := a.upload.Put(c.Request.Context(), header.Filename, data, header.Header.Get("Content-Type"))
+	url, key, err := a.upload.Put(c.Request.Context(), header.Filename, data)
 	if err != nil {
 		slog.Warn("上传失败", "error", err, "file", header.Filename)
 		fail(c, http.StatusBadRequest, err.Error())
