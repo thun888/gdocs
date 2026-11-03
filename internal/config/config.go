@@ -22,10 +22,11 @@ type Config struct {
 }
 
 type Server struct {
-	Addr       string `yaml:"addr"`
-	BaseURL    string `yaml:"base_url"`
-	SessionKey string `yaml:"session_key"`
-	PublicRead bool   `yaml:"public_read"`
+	Addr           string   `yaml:"addr"`
+	BaseURL        string   `yaml:"base_url"`
+	SessionKey     string   `yaml:"session_key"`
+	PublicRead     bool     `yaml:"public_read"`
+	TrustedProxies []string `yaml:"trusted_proxies"`
 }
 
 type Database struct {

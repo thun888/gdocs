@@ -26,7 +26,8 @@ func New(cfg *config.Config, db *gorm.DB, api *httpapi.API) *gin.Engine {
 	s := &Server{cfg: cfg, db: db}
 
 	r := gin.New()
-	r.Use(gin.Recovery(), requestLogger())
+	_ = r.SetTrustedProxies(cfg.Server.TrustedProxies)
+	r.Use(gin.Recovery(), requestLogger(), securityHeaders())
 	r.GET("/healthz", s.healthz)
 	api.Register(r)
 	s.mountStatic(r)
@@ -67,6 +68,16 @@ func (s *Server) mountStatic(r *gin.Engine) {
 		c.Request.URL.Path = "/"
 		files.ServeHTTP(c.Writer, c.Request)
 	})
+}
+
+func securityHeaders() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		h := c.Writer.Header()
+		h.Set("X-Content-Type-Options", "nosniff")
+		h.Set("X-Frame-Options", "DENY")
+		h.Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		c.Next()
+	}
 }
 
 func requestLogger() gin.HandlerFunc {
