@@ -9,7 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 var slugPattern = regexp.MustCompile(`^[a-z0-9][a-z0-9-]{0,63}$`)

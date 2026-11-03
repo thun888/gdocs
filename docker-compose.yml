@@ -2,15 +2,15 @@ services:
   postgres:
     image: postgres:16-alpine
     environment:
-      POSTGRES_USER: zdocs
-      POSTGRES_PASSWORD: zdocs
-      POSTGRES_DB: zdocs
+      POSTGRES_USER: gdocs
+      POSTGRES_PASSWORD: gdocs
+      POSTGRES_DB: gdocs
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U zdocs"]
+      test: ["CMD-SHELL", "pg_isready -U gdocs"]
       interval: 5s
       timeout: 3s
       retries: 10

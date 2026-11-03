@@ -1,4 +1,4 @@
-# ZDocs Go 复刻实施计划
+# gdocs Go 复刻实施计划
 
 > 原始需求：在当前工作空间写一个 Go 程序，前端用 `G:\Project\ZDocs` 的样式，用现代技术栈复刻，原生支持无刷新。技术栈：前端 React，后端 Gin，数据库 PostgreSQL。功能：① 以 OAuth 为唯一用户认证源，支持上游权限组管理；② 以 Forgejo（Gitea）为文件存储服务，可配置多个仓库来源，文档目录按真实文件目录显示；③ 利用 Git 服务器接口实现改动显示；④ 图片上传自动保存到 S3 兼容存储；⑤ 支持 Mermaid 与语法高亮。
 >
@@ -70,18 +70,18 @@
 server:
   addr: ":8080"
   base_url: "https://docs.example.com"
-  session_key: "${ZDOCS_SESSION_KEY}"    # ≥32 字节
+  session_key: "${GDOCS_SESSION_KEY}"    # ≥32 字节
   public_read: true                      # 全局默认可见性，文档 front-matter 可覆盖
 
 database:
-  dsn: "postgres://zdocs:${PG_PASSWORD}@127.0.0.1:5432/zdocs?sslmode=disable"
+  dsn: "postgres://gdocs:${PG_PASSWORD}@127.0.0.1:5432/gdocs?sslmode=disable"
   max_open: 20
   max_idle: 5
   auto_migrate: false
 
 oauth:
   issuer: "https://gzhu-sso.school.hzchu.top"
-  client_id: "zdocs"
+  client_id: "gdocs"
   client_secret: "${OAUTH_CLIENT_SECRET}"
   redirect_url: "https://docs.example.com/api/v1/auth/callback"
   scopes: ["openid", "profile", "email", "groups"]
@@ -90,11 +90,11 @@ oauth:
 
 access:
   allowed_groups: []                     # 空为不限制；命中任一即放行，支持 * 结尾通配
-  deny_message: "当前账号不在 ZDocs 的访问范围内"
+  deny_message: "当前账号不在 gdocs 的访问范围内"
 
 git:
-  bot_name: "ZDocs"
-  bot_email: "zdocs@example.com"         # 用户邮箱缺失时的兜底提交身份
+  bot_name: "gdocs"
+  bot_email: "gdocs@example.com"         # 用户邮箱缺失时的兜底提交身份
 
 index:
   ttl_minutes: 10
@@ -104,11 +104,11 @@ index:
 s3:
   endpoint: "https://s3.example.com"
   region: "us-east-1"
-  bucket: "zdocs"
+  bucket: "gdocs"
   access_key: "${S3_ACCESS_KEY}"
   secret_key: "${S3_SECRET_KEY}"
   path_prefix: "docs/"
-  public_base: "https://cdn.example.com/zdocs"
+  public_base: "https://cdn.example.com/gdocs"
   max_size_mb: 10
   allow_types: ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]
 
@@ -134,7 +134,7 @@ sources:
 
 ```bash
 ./bin/relayctl -config config.yaml client create \
-  -id zdocs -name "ZDocs" \
+  -id gdocs -name "gdocs" \
   -redirect "https://docs.example.com/api/v1/auth/callback" \
   -scopes openid,profile,email,groups
 ```
@@ -347,8 +347,8 @@ web/src/styles/
 ## 11. 目录结构
 
 ```
-zdocs-go/
-├── cmd/zdocs/main.go
+gdocs-go/
+├── cmd/gdocs/main.go
 ├── cmd/migrate-php/main.go
 ├── internal/
 │   ├── config/                    # 加载、${ENV} 展开、校验
@@ -430,7 +430,7 @@ config → store → source ─┐
 
 ## 16. 部署前确认
 
-1. relay 上的 zdocs 应用是否已勾选 `groups` scope。
+1. relay 上的 gdocs 应用是否已勾选 `groups` scope。
 2. Forgejo 令牌是否具备 contents 读写权限，仓库是否允许直接提交到目标分支。
 3. S3 桶是否允许公开读，或改用签名 URL。
 4. `server.public_read` 与 `access.allowed_groups` 的最终取值。

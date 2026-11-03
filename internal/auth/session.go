@@ -8,16 +8,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/config"
-	"github.com/thun888/zdocs-go/internal/cryptox"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/cryptox"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 var errSessionExpired = errors.New("会话已过期")
 
 const (
-	sessionCookie = "zdocs_session"
-	stateCookie   = "zdocs_state"
+	sessionCookie = "gdocs_session"
+	stateCookie   = "gdocs_state"
 	sessionTTL    = 7 * 24 * time.Hour
 )
 

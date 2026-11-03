@@ -9,4 +9,4 @@ if [ -f web/package.json ]; then
   (cd web && npm run build)
 fi
 
-go build -trimpath -ldflags "-s -w" -o "bin/zdocs$(go env GOEXE)" ./cmd/zdocs
+go build -trimpath -ldflags "-s -w" -o "bin/gdocs$(go env GOEXE)" ./cmd/gdocs

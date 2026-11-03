@@ -3,11 +3,11 @@ package httpapi
 import (
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/auth"
-	"github.com/thun888/zdocs-go/internal/config"
-	"github.com/thun888/zdocs-go/internal/doc"
-	"github.com/thun888/zdocs-go/internal/storage"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/auth"
+	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/doc"
+	"github.com/thun888/gdocs-go/internal/storage"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 type Options struct {

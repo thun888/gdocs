@@ -1,4 +1,4 @@
-module github.com/thun888/zdocs-go
+module github.com/thun888/gdocs-go
 
 go 1.27.3
 

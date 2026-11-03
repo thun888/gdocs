@@ -11,14 +11,14 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/thun888/zdocs-go/internal/auth"
-	"github.com/thun888/zdocs-go/internal/config"
-	"github.com/thun888/zdocs-go/internal/cryptox"
-	"github.com/thun888/zdocs-go/internal/doc"
-	"github.com/thun888/zdocs-go/internal/httpapi"
-	"github.com/thun888/zdocs-go/internal/server"
-	"github.com/thun888/zdocs-go/internal/storage"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/auth"
+	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/cryptox"
+	"github.com/thun888/gdocs-go/internal/doc"
+	"github.com/thun888/gdocs-go/internal/httpapi"
+	"github.com/thun888/gdocs-go/internal/server"
+	"github.com/thun888/gdocs-go/internal/storage"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 func main() {

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props) {
-  const [site, setSite] = useState<SiteInfo>({ name: 'ZDocs', description: '', public_read: true })
+  const [site, setSite] = useState<SiteInfo>({ name: 'gdocs', description: '', public_read: true })
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()

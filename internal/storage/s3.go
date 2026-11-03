@@ -14,7 +14,7 @@ import (
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 
-	"github.com/thun888/zdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/config"
 )
 
 type Uploader struct {

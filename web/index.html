@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="theme-color" content="#FFFFFF" />
-  <title>ZDocs</title>
+  <title>gdocs</title>
   <link rel="icon" href="/favicon.ico" />
   <link rel="stylesheet" href="/css/open-sans.css" />
   <link rel="stylesheet" href="/css/font-awesome.min.css" />
@@ -16,7 +16,7 @@
   <script>
     (function () {
       try {
-        var saved = localStorage.getItem('zdocs-theme');
+        var saved = localStorage.getItem('gdocs-theme');
         var hour = new Date().getHours();
         var dark = saved ? saved === 'dark' : (hour >= 21 || hour < 6);
         if (dark) document.body.classList.add('theme-dark');

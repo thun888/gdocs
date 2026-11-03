@@ -1,19 +1,19 @@
 server:
   addr: ":8080"
   base_url: "http://127.0.0.1:8080"
-  session_key: "${ZDOCS_SESSION_KEY}"
+  session_key: "${GDOCS_SESSION_KEY}"
   public_read: true
   trusted_proxies: []
 
 database:
-  dsn: "postgres://zdocs:zdocs@127.0.0.1:5432/zdocs?sslmode=disable"
+  dsn: "postgres://gdocs:gdocs@127.0.0.1:5432/gdocs?sslmode=disable"
   max_open: 20
   max_idle: 5
   auto_migrate: false
 
 oauth:
   issuer: "https://gzhu-sso.school.hzchu.top"
-  client_id: "zdocs"
+  client_id: "gdocs"
   client_secret: "${OAUTH_CLIENT_SECRET}"
   redirect_url: "http://127.0.0.1:8080/api/v1/auth/callback"
   scopes: ["openid", "profile", "email", "groups"]
@@ -22,11 +22,11 @@ oauth:
 
 access:
   allowed_groups: []
-  deny_message: "当前账号不在 ZDocs 的访问范围内"
+  deny_message: "当前账号不在 gdocs 的访问范围内"
 
 git:
-  bot_name: "ZDocs"
-  bot_email: "zdocs@example.com"
+  bot_name: "gdocs"
+  bot_email: "gdocs@example.com"
 
 index:
   ttl_minutes: 10
@@ -36,11 +36,11 @@ index:
 s3:
   endpoint: "https://s3.example.com"
   region: "us-east-1"
-  bucket: "zdocs"
+  bucket: "gdocs"
   access_key: "${S3_ACCESS_KEY}"
   secret_key: "${S3_SECRET_KEY}"
   path_prefix: "docs/"
-  public_base: "https://cdn.example.com/zdocs"
+  public_base: "https://cdn.example.com/gdocs"
   max_size_mb: 10
   allow_types: ["image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml"]
 

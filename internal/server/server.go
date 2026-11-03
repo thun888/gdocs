@@ -12,9 +12,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
 
-	"github.com/thun888/zdocs-go/internal/config"
-	"github.com/thun888/zdocs-go/internal/httpapi"
-	"github.com/thun888/zdocs-go/internal/web"
+	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/httpapi"
+	"github.com/thun888/gdocs-go/internal/web"
 )
 
 type Server struct {

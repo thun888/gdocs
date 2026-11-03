@@ -6,7 +6,7 @@ import (
 	"github.com/pressly/goose/v3"
 	"gorm.io/gorm"
 
-	"github.com/thun888/zdocs-go/migrations"
+	"github.com/thun888/gdocs-go/migrations"
 )
 
 func Migrate(db *gorm.DB) error {

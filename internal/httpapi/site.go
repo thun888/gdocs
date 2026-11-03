@@ -10,7 +10,7 @@ func (a *API) handleSite(c *gin.Context) {
 	name, _ := a.store.SettingGet(c.Request.Context(), "site_name")
 	desc, _ := a.store.SettingGet(c.Request.Context(), "site_desc")
 	if name == "" {
-		name = "ZDocs"
+		name = "gdocs"
 	}
 	ok(c, gin.H{
 		"name":        name,

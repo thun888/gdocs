@@ -1,4 +1,4 @@
-const STORAGE_KEY = 'zdocs-theme'
+const STORAGE_KEY = 'gdocs-theme'
 
 export function isDark(): boolean {
   return document.body.classList.contains('theme-dark')

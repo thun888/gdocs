@@ -10,7 +10,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 
-	"github.com/thun888/zdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/config"
 )
 
 func Open(cfg config.Database) (*gorm.DB, error) {

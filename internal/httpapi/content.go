@@ -7,10 +7,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/auth"
-	"github.com/thun888/zdocs-go/internal/doc"
-	"github.com/thun888/zdocs-go/internal/source"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/auth"
+	"github.com/thun888/gdocs-go/internal/doc"
+	"github.com/thun888/gdocs-go/internal/source"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 func (a *API) source(c *gin.Context) (*store.Source, bool) {

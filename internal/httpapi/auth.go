@@ -7,8 +7,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/auth"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/auth"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 type userView struct {

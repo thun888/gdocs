@@ -6,12 +6,12 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 const (
-	ctxUser = "zdocs.user"
-	ctxSID  = "zdocs.sid"
+	ctxUser = "gdocs.user"
+	ctxSID  = "gdocs.sid"
 )
 
 func abort(c *gin.Context, status int, message string) {

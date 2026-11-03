@@ -16,10 +16,10 @@ import (
 
 	"gopkg.in/yaml.v3"
 
-	"github.com/thun888/zdocs-go/internal/config"
-	"github.com/thun888/zdocs-go/internal/cryptox"
-	"github.com/thun888/zdocs-go/internal/source"
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/cryptox"
+	"github.com/thun888/gdocs-go/internal/source"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 const (

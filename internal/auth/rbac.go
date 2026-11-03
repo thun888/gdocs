@@ -3,7 +3,7 @@ package auth
 import (
 	"strings"
 
-	"github.com/thun888/zdocs-go/internal/store"
+	"github.com/thun888/gdocs-go/internal/store"
 )
 
 var roleRank = map[string]int{"viewer": 1, "editor": 2, "admin": 3}
