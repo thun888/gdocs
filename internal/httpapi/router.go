@@ -47,6 +47,7 @@ func (a *API) Register(r *gin.Engine) {
 	v1.GET("/me", a.handleMe)
 
 	v1.GET("/sources", a.handleSources)
+	v1.GET("/assets/*key", a.auth.RequireAuth(), a.handleAsset)
 	v1.GET("/sources/:slug/tree", a.handleTree)
 	v1.GET("/sources/:slug/doc", a.handleDoc)
 	v1.GET("/sources/:slug/history", a.handleHistory)

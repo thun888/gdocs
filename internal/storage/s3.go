@@ -5,9 +5,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
 	"fmt"
+	"io"
 	"net/http"
 	"path"
+	"regexp"
 	"strings"
 	"time"
 
@@ -16,6 +19,13 @@ import (
 
 	"github.com/thun888/gdocs-go/internal/config"
 )
+
+var (
+	ErrObjectNotFound = errors.New("对象不存在")
+	ErrInvalidKey     = errors.New("对象路径不合法")
+)
+
+var keyPattern = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._/-]*$`)
 
 type Uploader struct {
 	client     *minio.Client
@@ -83,6 +93,44 @@ func New(cfg config.S3) (*Uploader, error) {
 }
 
 func (u *Uploader) MaxBytes() int64 { return u.maxBytes }
+
+type Object struct {
+	Body        io.ReadCloser
+	ContentType string
+	Size        int64
+	ModTime     time.Time
+	ETag        string
+}
+
+func (u *Uploader) Open(ctx context.Context, key string) (*Object, error) {
+	key = strings.TrimPrefix(strings.TrimSpace(key), "/")
+	if key == "" || !keyPattern.MatchString(key) || strings.Contains(key, "..") || strings.Contains(key, "//") {
+		return nil, ErrInvalidKey
+	}
+	obj, err := u.client.GetObject(ctx, u.bucket, key, minio.GetObjectOptions{})
+	if err != nil {
+		return nil, err
+	}
+	info, err := obj.Stat()
+	if err != nil {
+		obj.Close()
+		if response := minio.ToErrorResponse(err); response.Code == "NoSuchKey" || response.Code == "NoSuchBucket" {
+			return nil, ErrObjectNotFound
+		}
+		return nil, err
+	}
+	contentType := info.ContentType
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	return &Object{
+		Body:        obj,
+		ContentType: contentType,
+		Size:        info.Size,
+		ModTime:     info.LastModified,
+		ETag:        info.ETag,
+	}, nil
+}
 
 func (u *Uploader) Put(ctx context.Context, filename string, data []byte) (string, string, error) {
 	if int64(len(data)) > u.maxBytes {

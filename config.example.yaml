@@ -64,8 +64,9 @@ s3:
   secret_key: "${S3_SECRET_KEY}"
   # 对象键前缀，最终对象键为 {path_prefix}/{YYYY}/{MM}/{内容哈希前16位}{扩展名}
   path_prefix: "docs/"
-  # 图片公开访问前缀，必须能被浏览器匿名读取；留空时返回站内路径，通常无法直接访问
-  public_base: "https://cdn.example.com/gdocs"
+  # 附件访问前缀。设为 /api/v1/assets 时由 gdocs 校验登录态后从私有桶代理读取；
+  # 设为 CDN 地址时该地址必须允许匿名读取
+  public_base: "/api/v1/assets"
   # 单张图片大小上限，单位 MB
   max_size_mb: 10
   # 允许的 MIME 类型，留空表示不额外限制；扩展名固定支持 png/jpg/jpeg/gif/webp/svg
