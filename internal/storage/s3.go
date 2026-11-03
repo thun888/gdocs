@@ -33,6 +33,18 @@ var extContentTypes = map[string]string{
 	".gif":  "image/gif",
 	".webp": "image/webp",
 	".svg":  "image/svg+xml",
+	".pdf":  "application/pdf",
+	".doc":  "application/msword",
+	".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+	".xls":  "application/vnd.ms-excel",
+	".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+	".ppt":  "application/vnd.ms-powerpoint",
+	".pptx": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+	".zip":  "application/zip",
+	".7z":   "application/x-7z-compressed",
+	".rar":  "application/vnd.rar",
+	".txt":  "text/plain",
+	".csv":  "text/csv",
 }
 
 func New(cfg config.S3) (*Uploader, error) {
@@ -92,12 +104,39 @@ func (u *Uploader) Put(ctx context.Context, filename string, data []byte) (strin
 		return "", "", fmt.Errorf("文件内容与扩展名不符")
 	}
 
+	return u.put(ctx, filename, contentType, data, time.Now())
+}
+
+func (u *Uploader) PutAttachment(ctx context.Context, filename, contentType string, data []byte, at time.Time) (string, string, error) {
+	if int64(len(data)) > u.maxBytes {
+		return "", "", fmt.Errorf("文件超过大小限制")
+	}
+	if len(data) == 0 {
+		return "", "", fmt.Errorf("文件为空")
+	}
+	ext := strings.ToLower(path.Ext(filename))
+	if ext == "" {
+		return "", "", fmt.Errorf("文件缺少扩展名")
+	}
+	if contentType == "" {
+		contentType = extContentTypes[ext]
+	}
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+	if at.IsZero() {
+		at = time.Now()
+	}
+	return u.put(ctx, filename, contentType, data, at)
+}
+
+func (u *Uploader) put(ctx context.Context, filename, contentType string, data []byte, at time.Time) (string, string, error) {
 	sum := sha256.Sum256(data)
 	name := hex.EncodeToString(sum[:8])
 	ext := strings.ToLower(path.Ext(filename))
-	key := path.Join(u.prefix, time.Now().Format("2006/01"), name+ext)
+	key := path.Join(u.prefix, at.Format("2006/01"), name+ext)
 	if u.prefix == "" {
-		key = path.Join(time.Now().Format("2006/01"), name+ext)
+		key = path.Join(at.Format("2006/01"), name+ext)
 	}
 
 	opts := minio.PutObjectOptions{ContentType: contentType}
