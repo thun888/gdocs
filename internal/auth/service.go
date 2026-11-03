@@ -99,12 +99,12 @@ func (s *Service) CompleteLogin(ctx context.Context, code, state string, stateRa
 		return "", "", fmt.Errorf("登录状态已过期")
 	}
 
-	token, claims, err := s.oidc.exchange(ctx, code, payload.Verifier)
+	token, claims, err := s.oidc.exchange(ctx, code, payload.Verifier, payload.Nonce)
 	if err != nil {
 		return "", "", err
 	}
 	if fresh, err := s.oidc.userInfo(ctx, token.AccessToken); err == nil {
-		if fresh.Sub != "" {
+		if fresh.Sub != "" && fresh.Sub == claims.Sub {
 			claims = fresh
 		}
 	}

@@ -7,8 +7,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/coreos/go-oidc/v3/oidc"
 	"golang.org/x/oauth2"
@@ -18,6 +20,7 @@ import (
 
 type Claims struct {
 	Sub               string   `json:"sub"`
+	Nonce             string   `json:"nonce"`
 	PreferredUsername string   `json:"preferred_username"`
 	Name              string   `json:"name"`
 	Email             string   `json:"email"`
@@ -35,6 +38,8 @@ type oidcClient struct {
 	userinfo string
 	revoke   string
 }
+
+var oidcHTTPClient = &http.Client{Timeout: 15 * time.Second}
 
 func newOIDCClient(cfg config.OAuth) *oidcClient {
 	return &oidcClient{cfg: cfg}
@@ -94,7 +99,7 @@ func (c *oidcClient) authCodeURL(ctx context.Context, state, nonce, verifier str
 	), nil
 }
 
-func (c *oidcClient) exchange(ctx context.Context, code, verifier string) (*oauth2.Token, *Claims, error) {
+func (c *oidcClient) exchange(ctx context.Context, code, verifier, nonce string) (*oauth2.Token, *Claims, error) {
 	if err := c.init(ctx); err != nil {
 		return nil, nil, err
 	}
@@ -122,6 +127,9 @@ func (c *oidcClient) exchange(ctx context.Context, code, verifier string) (*oaut
 	if err := idToken.Claims(&claims); err != nil {
 		return nil, nil, fmt.Errorf("解析 id_token: %w", err)
 	}
+	if nonce != "" && claims.Nonce != nonce {
+		return nil, nil, fmt.Errorf("nonce 不匹配")
+	}
 	return token, &claims, nil
 }
 
@@ -142,7 +150,7 @@ func (c *oidcClient) userInfo(ctx context.Context, accessToken string) (*Claims,
 	}
 	req.Header.Set("Authorization", "Bearer "+strings.TrimSpace(accessToken))
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := oidcHTTPClient.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -186,14 +194,16 @@ func (c *oidcClient) revokeToken(ctx context.Context, refreshToken string) {
 		return
 	}
 
-	form := strings.NewReader("token=" + refreshToken + "&token_type_hint=refresh_token")
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, form)
+	form := url.Values{}
+	form.Set("token", refreshToken)
+	form.Set("token_type_hint", "refresh_token")
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, strings.NewReader(form.Encode()))
 	if err != nil {
 		return
 	}
 	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 	req.SetBasicAuth(conf.ClientID, conf.ClientSecret)
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := oidcHTTPClient.Do(req)
 	if err == nil {
 		resp.Body.Close()
 	}
