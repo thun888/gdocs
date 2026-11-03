@@ -252,7 +252,7 @@ func (a *API) handleAdminSync(c *gin.Context) {
 	}
 	if err := a.doc.Sync(c.Request.Context(), src); err != nil {
 		slog.Error("重建索引失败", "error", err)
-		fail(c, http.StatusBadGateway, "重建索引失败: "+err.Error())
+		fail(c, http.StatusBadGateway, "重建索引失败")
 		return
 	}
 	ok(c, gin.H{"synced": src.Slug})

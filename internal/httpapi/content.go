@@ -70,7 +70,7 @@ func (a *API) handleDoc(c *gin.Context) {
 		return
 	}
 	path, err := doc.Clean(c.Query("path"))
-	if err != nil || path == "" {
+	if err != nil || path == "" || !doc.IsDoc(path) {
 		fail(c, http.StatusBadRequest, "路径不合法")
 		return
 	}

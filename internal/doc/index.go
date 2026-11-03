@@ -180,6 +180,11 @@ func (s *Service) Sync(ctx context.Context, src *store.Source) error {
 		if !ok || rel == "" {
 			continue
 		}
+		cleaned, err := Clean(rel)
+		if err != nil || cleaned == "" {
+			continue
+		}
+		rel = cleaned
 
 		switch {
 		case strings.EqualFold(path.Base(rel), metaFile):

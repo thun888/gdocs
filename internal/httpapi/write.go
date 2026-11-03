@@ -93,7 +93,11 @@ func (a *API) handleSaveDoc(c *gin.Context) {
 		a.sourceError(c, err)
 		return
 	}
-	if req.SHA != "" && current.SHA != req.SHA {
+	if req.SHA == "" {
+		fail(c, http.StatusBadRequest, "缺少版本号")
+		return
+	}
+	if current.SHA != req.SHA {
 		fail(c, http.StatusConflict, "内容已被他人修改，请刷新后重试")
 		return
 	}
@@ -198,7 +202,11 @@ func (a *API) handleDeleteDoc(c *gin.Context) {
 		return
 	}
 	sha := c.Query("sha")
-	if sha != "" && sha != file.SHA {
+	if sha == "" {
+		fail(c, http.StatusBadRequest, "缺少版本号")
+		return
+	}
+	if sha != file.SHA {
 		fail(c, http.StatusConflict, "内容已被他人修改，请刷新后重试")
 		return
 	}
@@ -226,7 +234,7 @@ func (a *API) handleMoveDoc(c *gin.Context) {
 		return
 	}
 	from, err := doc.Clean(req.From)
-	if err != nil || from == "" {
+	if err != nil || from == "" || !doc.IsDoc(from) {
 		fail(c, http.StatusBadRequest, "原路径不合法")
 		return
 	}

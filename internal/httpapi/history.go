@@ -75,6 +75,7 @@ func (a *API) handleCommit(c *gin.Context) {
 		a.sourceError(c, err)
 		return
 	}
+	detail.Files = filesUnderRoot(client.Root(), detail.Files)
 	ok(c, gin.H{"commit": detail})
 }
 
@@ -98,7 +99,20 @@ func (a *API) handleCompare(c *gin.Context) {
 		a.sourceError(c, err)
 		return
 	}
-	ok(c, gin.H{"files": files})
+	ok(c, gin.H{"files": filesUnderRoot(client.Root(), files)})
+}
+
+func filesUnderRoot(root string, files []source.FileDiff) []source.FileDiff {
+	if root == "" {
+		return files
+	}
+	out := make([]source.FileDiff, 0, len(files))
+	for _, f := range files {
+		if _, ok := doc.UnderRoot(f.Filename, root); ok {
+			out = append(out, f)
+		}
+	}
+	return out
 }
 
 func (a *API) handleRecent(c *gin.Context) {
