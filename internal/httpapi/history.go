@@ -108,7 +108,7 @@ func filesUnderRoot(root string, files []source.FileDiff) []source.FileDiff {
 	}
 	out := make([]source.FileDiff, 0, len(files))
 	for _, f := range files {
-		if _, ok := doc.UnderRoot(f.Filename, root); ok {
+		if _, ok := doc.UnderRoot(root, f.Filename); ok {
 			out = append(out, f)
 		}
 	}

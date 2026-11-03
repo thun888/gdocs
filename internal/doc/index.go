@@ -176,7 +176,7 @@ func (s *Service) Sync(ctx context.Context, src *store.Source) error {
 		} else {
 			continue
 		}
-		rel, ok := UnderRoot(name, src.Root)
+		rel, ok := UnderRoot(src.Root, name)
 		if !ok || rel == "" {
 			continue
 		}

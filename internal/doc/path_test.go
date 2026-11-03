@@ -25,6 +25,26 @@ func TestClean(t *testing.T) {
 	}
 }
 
+func TestUnderRoot(t *testing.T) {
+	cases := []struct {
+		root, path string
+		want       string
+		ok         bool
+	}{
+		{"", "guide/intro.md", "guide/intro.md", true},
+		{"docs", "docs/guide/intro.md", "guide/intro.md", true},
+		{"docs", "docs", "", false},
+		{"docs", "other/intro.md", "", false},
+		{"docs", "docs2/intro.md", "", false},
+	}
+	for _, tc := range cases {
+		got, ok := UnderRoot(tc.root, tc.path)
+		if got != tc.want || ok != tc.ok {
+			t.Errorf("UnderRoot(%q, %q) = (%q, %v), want (%q, %v)", tc.root, tc.path, got, ok, tc.want, tc.ok)
+		}
+	}
+}
+
 func TestVisible(t *testing.T) {
 	yes, no := true, false
 	tests := []struct {
