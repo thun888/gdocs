@@ -16,9 +16,13 @@
     (function () {
       try {
         var saved = localStorage.getItem('gdocs-theme');
-        var hour = new Date().getHours();
-        var dark = saved ? saved === 'dark' : (hour >= 21 || hour < 6);
-        if (dark) document.body.classList.add('theme-dark');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var dark = saved ? saved === 'dark' : prefersDark;
+        if (dark) {
+          document.body.classList.add('theme-dark');
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', '#1e212e');
+        }
         var scale = localStorage.getItem('gdocs-font-scale');
         if (scale) document.documentElement.style.setProperty('--font-scale', scale);
       } catch (e) {}

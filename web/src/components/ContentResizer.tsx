@@ -6,7 +6,10 @@ export function maxContentWidth(): number {
   const main = document.querySelector<HTMLElement>('.main-articles')
   if (!main) return window.innerWidth - 380
   const style = getComputedStyle(main)
-  const available = main.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
+  const catalog = document.querySelector<HTMLElement>('.article-catalog')
+  const reserved = catalog ? catalog.getBoundingClientRect().width : 0
+  const available =
+    main.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight) - reserved
   return Math.max(MIN_CONTENT_WIDTH, Math.round(available))
 }
 

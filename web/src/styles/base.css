@@ -5,6 +5,8 @@
 }
 
 html {
+  /* 字号控制以根字号为基准，正文与界面一起缩放 */
+  font-size: calc(100% * var(--font-scale, 1));
   -webkit-tap-highlight-color: transparent;
   scroll-behavior: smooth;
 }
@@ -12,13 +14,15 @@ html {
 body {
   margin: 0;
   min-height: 100vh;
+  min-height: 100dvh;
   background: var(--bg-color);
   color: var(--text-color);
   font-family: var(--font-sans);
-  font-size: 14px;
+  font-size: 0.875rem;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   transition: background-color var(--transition-fast), color var(--transition-fast);
+  overflow-wrap: break-word;
 }
 
 ::selection {
@@ -47,26 +51,52 @@ button {
   outline-offset: 2px;
 }
 
-* {
+/* scrollbar-width 与 scrollbar-color 可继承，根元素设置即可覆盖全部滚动容器 */
+html {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) transparent;
 }
 
-*::-webkit-scrollbar {
+html::-webkit-scrollbar,
+.categories::-webkit-scrollbar,
+.article-catalog::-webkit-scrollbar,
+.modal-body::-webkit-scrollbar,
+.history-list::-webkit-scrollbar,
+.diff-block::-webkit-scrollbar,
+.admin-table-wrap::-webkit-scrollbar,
+pre::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-*::-webkit-scrollbar-thumb {
+html::-webkit-scrollbar-thumb,
+.categories::-webkit-scrollbar-thumb,
+.article-catalog::-webkit-scrollbar-thumb,
+.modal-body::-webkit-scrollbar-thumb,
+.history-list::-webkit-scrollbar-thumb,
+.diff-block::-webkit-scrollbar-thumb,
+.admin-table-wrap::-webkit-scrollbar-thumb,
+pre::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: var(--radius-pill);
 }
 
-*::-webkit-scrollbar-track {
+html::-webkit-scrollbar-track,
+.categories::-webkit-scrollbar-track,
+.article-catalog::-webkit-scrollbar-track,
+.modal-body::-webkit-scrollbar-track,
+.history-list::-webkit-scrollbar-track,
+.diff-block::-webkit-scrollbar-track,
+.admin-table-wrap::-webkit-scrollbar-track,
+pre::-webkit-scrollbar-track {
   background: transparent;
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {

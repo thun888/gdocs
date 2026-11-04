@@ -49,7 +49,7 @@ export function DocPage() {
   const [editPublic, setEditPublic] = useState(true)
   const [saving, setSaving] = useState(false)
   const [showHistory, setShowHistory] = useState(false)
-  const [catalog, setCatalog] = useState<{ id: string; text: string }[]>([])
+  const [catalog, setCatalog] = useState<{ id: string; text: string; level: number }[]>([])
   const [contentWidth, setContentWidth] = useState<number | null>(storedContentWidth)
   const [renderTick, setRenderTick] = useState(0)
   const autoEditApplied = useRef('')
@@ -159,16 +159,29 @@ export function DocPage() {
       return
     }
     const timer = window.setTimeout(() => {
-      const headings = Array.from(document.querySelectorAll<HTMLElement>('.article-content h3'))
+      const headings = Array.from(
+        document.querySelectorAll<HTMLElement>('.article-content h2, .article-content h3'),
+      )
       headings.forEach((heading, index) => {
         heading.id = `catalog-${index}`
       })
-      setCatalog(headings.map((heading, index) => ({ id: `catalog-${index}`, text: heading.textContent ?? '' })))
+      setCatalog(
+        headings.map((heading, index) => ({
+          id: `catalog-${index}`,
+          text: heading.textContent ?? '',
+          level: heading.tagName === 'H3' ? 3 : 2,
+        })),
+      )
     }, 50)
     return () => window.clearTimeout(timer)
   }, [doc, editing, renderTick])
 
   const markRendered = useCallback(() => setRenderTick((tick) => tick + 1), [])
+
+  const scrollToHeading = (id: string) => {
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    document.getElementById(id)?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth' })
+  }
 
   const createDoc = async () => {
     const dir = isDoc
@@ -411,7 +424,18 @@ export function DocPage() {
           <h3>目录</h3>
           <ul>
             {catalog.map((item) => (
-              <li key={item.id} onClick={() => document.getElementById(item.id)?.scrollIntoView({ behavior: 'smooth' })}>
+              <li
+                key={item.id}
+                className={`level-${item.level}`}
+                role="button"
+                tabIndex={0}
+                onClick={() => scrollToHeading(item.id)}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter' && event.key !== ' ') return
+                  event.preventDefault()
+                  scrollToHeading(item.id)
+                }}
+              >
                 {item.text}
               </li>
             ))}

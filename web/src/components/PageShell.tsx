@@ -30,29 +30,51 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
 
   return (
     <>
-      <div className="side-tools">
-        <div className="switch-theme" title="切换主题" onClick={() => toggleTheme()}>
-          <i className="fas fa-sun" />
-          <i className="fas fa-moon" />
-        </div>
-        <div className="font-size-control" role="group" aria-label="字号">
-          <button onClick={font.larger} disabled={!font.canGrow} title="放大字号">
-            A+
-          </button>
-          <button onClick={font.smaller} disabled={!font.canShrink} title="缩小字号">
-            A−
-          </button>
-        </div>
-      </div>
       <div className={`main-container${sidebar ? ' has-sidebar' : ''}${menuOpen ? ' nav-open' : ''}`}>
         <div className="navbar">
-          <span className="menu" onClick={() => setMenuOpen((open) => !open)}>
+          <button
+            type="button"
+            className="menu"
+            aria-label="切换目录"
+            aria-expanded={menuOpen}
+            onClick={() => setMenuOpen((open) => !open)}
+          >
             <i className="fas fa-bars" />
-          </span>
-          <span className="logo" onClick={() => navigate('/')} style={{ cursor: 'pointer' }}>
+          </button>
+          <span
+            className="logo"
+            role="link"
+            tabIndex={0}
+            onClick={() => navigate('/')}
+            onKeyDown={(event) => {
+              if (event.key !== 'Enter') return
+              event.preventDefault()
+              navigate('/')
+            }}
+          >
             {site.name}
           </span>
           {breadcrumb && <span className="page-breadcrumb">{breadcrumb}</span>}
+          <div className="side-tools">
+            <button
+              type="button"
+              className="switch-theme"
+              title="切换主题"
+              aria-label="切换主题"
+              onClick={() => toggleTheme()}
+            >
+              <i className="fas fa-sun" />
+              <i className="fas fa-moon" />
+            </button>
+            <div className="font-size-control" role="group" aria-label="字号">
+              <button onClick={font.larger} disabled={!font.canGrow} title="放大字号">
+                A+
+              </button>
+              <button onClick={font.smaller} disabled={!font.canShrink} title="缩小字号">
+                A−
+              </button>
+            </div>
+          </div>
           <span className="login">
             {user ? (
               <>

@@ -42,7 +42,18 @@ export function Home() {
 
         <div className="source-grid">
           {sources.map((source) => (
-            <div key={source.slug} className="source-card" onClick={() => navigate(`/docs/${source.slug}`)}>
+            <div
+              key={source.slug}
+              className="source-card"
+              role="link"
+              tabIndex={0}
+              onClick={() => navigate(`/docs/${source.slug}`)}
+              onKeyDown={(event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return
+                event.preventDefault()
+                navigate(`/docs/${source.slug}`)
+              }}
+            >
               <div className="source-name">{source.name}</div>
               <div className="source-slug">{source.slug}</div>
               {(recent[source.slug] ?? []).slice(0, 3).map((commit) => (

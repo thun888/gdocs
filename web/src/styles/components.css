@@ -11,7 +11,7 @@
   border-radius: var(--radius-sm);
   background: transparent;
   color: var(--text-color);
-  font-size: 15px;
+  font-size: 0.9375rem;
   font-weight: 400;
   line-height: 22px;
   white-space: nowrap;
@@ -33,7 +33,7 @@
 .btn-sm {
   height: 30px;
   padding: 0 10px;
-  font-size: 13px;
+  font-size: 0.8125rem;
 }
 
 .btn-default {
@@ -48,36 +48,36 @@
 }
 
 .btn-primary {
-  background: var(--primary-color);
-  border-color: var(--primary-hover);
+  background: var(--primary-solid);
+  border-color: var(--primary-solid-hover);
   color: #fff;
 }
 
 .btn-primary:hover {
-  background: var(--primary-hover);
-  border-color: var(--primary-active);
+  background: var(--primary-solid-hover);
+  border-color: var(--primary-solid-active);
 }
 
 .btn-warning {
-  background: #ffa726;
-  border-color: #fb8c00;
+  background: #b45309;
+  border-color: #9a4a08;
   color: #fff;
 }
 
 .btn-warning:hover {
-  background: #fb8c00;
-  border-color: #f57c00;
+  background: #9a4a08;
+  border-color: #7f3c06;
 }
 
 .btn-danger {
-  background: #ef5350;
-  border-color: #e53935;
+  background: #d32f2f;
+  border-color: #b71c1c;
   color: #fff;
 }
 
 .btn-danger:hover {
-  background: #e53935;
-  border-color: #d32f2f;
+  background: #b71c1c;
+  border-color: #991616;
 }
 
 /* 表单 */
@@ -89,7 +89,7 @@
   background: var(--bg-content);
   color: var(--text-color);
   font-family: inherit;
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 1.5;
   transition: border-color var(--transition-fast);
 }
@@ -120,10 +120,16 @@ input[type="checkbox"] {
   max-width: 100%;
   margin-top: var(--space-5);
   color: var(--text-color);
-  font-size: calc(1.2rem * var(--font-scale, 1));
+  font-size: 1.2rem;
   font-weight: 300;
   line-height: 1.67;
+  overflow-wrap: anywhere;
   outline: none;
+}
+
+/* 固定顶栏下的锚点跳转需要让出顶栏高度 */
+.article-content :is(h1, h2, h3, h4, h5, h6) {
+  scroll-margin-top: calc(var(--nav-height) + var(--space-3));
 }
 
 .article-content p {
@@ -154,7 +160,7 @@ input[type="checkbox"] {
 }
 
 .article-content h3 {
-  margin-top: 30px;
+  margin-top: var(--space-7);
   padding: 0 0 4px var(--space-4);
   border-left: 8px solid var(--primary-color);
   font-size: 1.67em;
@@ -237,6 +243,21 @@ body.theme-dark .article-content blockquote {
   border-collapse: collapse;
 }
 
+/* Cherry 只提供包装层，滚动能力需要在这里补上 */
+.article-content .cherry-table-container {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* 表头不折行，列宽压不下去时由包装层横向滚动 */
+.article-content th {
+  white-space: nowrap;
+}
+
+.article-content :is(th, td) {
+  overflow-wrap: normal;
+}
+
 .article-content th,
 .article-content td {
   padding: var(--space-2);
@@ -263,10 +284,6 @@ body.theme-dark .article-content blockquote {
   transition: background-color var(--transition-fast);
 }
 
-.article-content code:hover {
-  background: var(--border-light);
-}
-
 .article-content pre {
   margin: var(--space-4) 0;
   padding: var(--space-3) var(--space-4);
@@ -289,8 +306,8 @@ body.theme-dark .article-content blockquote {
 
 .article-content mark,
 .cherry-previewer mark {
-  background: rgb(255 243 205);
-  color: #000;
+  background: var(--mark-bg);
+  color: var(--mark-color);
 }
 
 .article-content kbd {
@@ -464,6 +481,7 @@ body.theme-dark .cherry .cherry-toolbar {
   flex-direction: column;
   width: min(1000px, 100%);
   max-height: min(84vh, 860px);
+  max-height: min(84dvh, 860px);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-lg);
   background: var(--bg-content);
@@ -496,7 +514,7 @@ body.theme-dark .cherry .cherry-toolbar {
   border-radius: var(--radius-md);
   background: none;
   color: var(--text-light);
-  font-size: 14px;
+  font-size: 0.875rem;
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -566,12 +584,12 @@ body.theme-dark .cherry .cherry-toolbar {
 }
 
 .diff-stat em {
-  color: #2ea043;
+  color: var(--diff-add);
   font-style: normal;
 }
 
 .diff-stat del {
-  color: #d1242f;
+  color: var(--diff-del);
   text-decoration: none;
 }
 
@@ -582,7 +600,7 @@ body.theme-dark .cherry .cherry-toolbar {
   border-radius: var(--radius-md);
   background: var(--bg-secondary);
   overflow: auto;
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1.5;
 }
 
@@ -594,16 +612,16 @@ body.theme-dark .cherry .cherry-toolbar {
 }
 
 .diff-line.add {
-  background: rgb(46 160 67 / 16%);
+  background: var(--diff-add-bg);
 }
 
 .diff-line.del {
-  background: rgb(248 81 73 / 16%);
+  background: var(--diff-del-bg);
 }
 
 .diff-line.hunk {
-  background: rgb(130 80 223 / 8%);
-  color: #8250df;
+  background: var(--diff-hunk-bg);
+  color: var(--diff-hunk);
 }
 
 .diff-line.meta {
@@ -710,7 +728,7 @@ body.theme-dark .cherry .cherry-toolbar {
   border: none;
   background: none;
   color: var(--text-light);
-  font-size: 15px;
+  font-size: 0.9375rem;
   line-height: 22px;
   transition: color var(--transition-fast);
 }
@@ -908,13 +926,13 @@ body.theme-dark .cherry .cherry-toolbar {
 
 .admin-badge-editor {
   border-color: transparent;
-  background: rgb(46 160 67 / 12%);
-  color: #2ea043;
+  background: rgb(26 127 55 / 12%);
+  color: var(--diff-add);
 }
 
 body.theme-dark .admin-badge-editor {
-  background: rgb(46 160 67 / 18%);
-  color: #7ee787;
+  background: rgb(126 231 135 / 16%);
+  color: var(--diff-add);
 }
 
 .admin-tags {
@@ -1017,4 +1035,60 @@ body.theme-dark .admin-badge-editor {
   .admin-table {
     min-width: 640px;
   }
+}
+
+/* 打印：去掉外壳，只保留正文 */
+@media print {
+  @page {
+    margin: 16mm;
+  }
+
+  .navbar,
+  .categories,
+  .side-tools,
+  .article-catalog,
+  .content-resizer,
+  .doc-actions {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .main-articles,
+  .main-container.has-sidebar .main-articles {
+    min-height: 0;
+    margin-left: 0;
+    padding: 0;
+    background: none;
+  }
+
+  .article-title,
+  .article-content,
+  .admin-page {
+    width: 100%;
+    max-width: none;
+    margin-inline: 0;
+  }
+
+  .article-content {
+    font-size: 11pt;
+    line-height: 1.6;
+  }
+
+  .article-content pre,
+  .article-content .cherry-table-container {
+    overflow: visible;
+  }
+
+  .article-content pre {
+    white-space: pre-wrap;
+    border: 1px solid #ddd;
+  }
+
+  .article-content a {
+    border-bottom: none;
+  }
+
 }

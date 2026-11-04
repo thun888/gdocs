@@ -3,6 +3,7 @@
 .main-container {
   width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
 }
 
 /* 顶栏 */
@@ -21,7 +22,7 @@
 }
 
 .navbar .logo {
-  font-size: 25px;
+  font-size: 1.5625rem;
   font-weight: 300;
   white-space: nowrap;
   cursor: pointer;
@@ -31,10 +32,13 @@
   display: none;
   width: 40px;
   height: 40px;
+  padding: 0;
+  border: none;
   border-radius: var(--radius-md);
+  background: none;
   text-align: center;
   line-height: 40px;
-  font-size: 20px;
+  font-size: 1.25rem;
   color: var(--text-color);
   cursor: pointer;
 }
@@ -45,7 +49,8 @@
 
 .navbar .page-breadcrumb {
   margin-left: var(--space-4);
-  font-size: 16px;
+  min-width: 0;
+  font-size: 1rem;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -67,9 +72,10 @@
 .navbar .login {
   margin-left: auto;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
   gap: var(--space-1);
-  font-size: 16px;
+  font-size: 1rem;
   white-space: nowrap;
 }
 
@@ -100,9 +106,9 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--primary-color);
+  background: var(--primary-solid);
   color: #fff;
-  font-size: 15px;
+  font-size: 0.9375rem;
 }
 
 /* 侧栏 */
@@ -111,8 +117,8 @@
   top: var(--nav-height);
   left: 0;
   z-index: var(--z-sidebar);
+  bottom: 0;
   width: var(--sidebar-width);
-  height: calc(100% - var(--nav-height));
   padding-bottom: var(--space-7);
   overflow-y: auto;
   background: var(--bg-secondary);
@@ -123,7 +129,7 @@
 .categories > ul {
   list-style: none;
   margin: 0;
-  padding: 35px var(--space-5);
+  padding: var(--space-7) var(--space-5);
 }
 
 .categories ul ul {
@@ -141,7 +147,7 @@
 
 .categories .category-title {
   margin-bottom: var(--space-1);
-  font-size: 14px;
+  font-size: 0.875rem;
   color: var(--text-lighter);
   cursor: default;
 }
@@ -154,7 +160,7 @@
   display: block;
   padding-right: var(--space-5);
   color: var(--text-color);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 300;
   line-height: 2.2rem;
   white-space: nowrap;
@@ -192,7 +198,7 @@
 
 .sidebar-lock {
   margin-left: var(--space-1);
-  font-size: 11px;
+  font-size: 0.6875rem;
   color: var(--text-lighter);
 }
 
@@ -215,8 +221,20 @@
   background: none;
   border: none;
   color: var(--text-lighter);
-  font-size: 12px;
+  font-size: 0.75rem;
   line-height: 1;
+}
+
+/* 触屏没有悬停态，排序按钮常显 */
+@media (hover: none) {
+  .reorder {
+    opacity: 1;
+  }
+
+  .reorder button {
+    padding: 0 6px;
+    font-size: 0.875rem;
+  }
 }
 
 .reorder button:hover {
@@ -226,8 +244,10 @@
 /* 正文区 */
 .main-articles {
   min-height: 100vh;
+  min-height: 100dvh;
   /* 右侧留出浮动工具条的位置 */
-  padding: calc(var(--nav-height) + var(--space-5)) 64px var(--space-8) 40px;
+  padding: calc(var(--nav-height) + var(--space-5)) var(--tools-gutter) var(--space-8)
+    var(--page-gutter);
   background-color: var(--bg-color);
   background-image: var(--bg-image);
   background-size: var(--bg-size);
@@ -247,7 +267,7 @@
   padding-bottom: var(--space-4);
   border-bottom: 1px solid var(--border-light);
   color: var(--text-color);
-  font-size: calc(3.2rem * var(--font-scale, 1));
+  font-size: 3.2rem;
   font-weight: 300;
   line-height: 1.2;
   outline: none;
@@ -265,10 +285,10 @@
   position: relative;
 }
 
-/* 目录占据右侧 260px，正文让开，避免两者重叠 */
+/* 有右侧目录时让出目录宽度，避免正文与目录重叠 */
 @media (min-width: 1201px) {
   .main-articles:has(.article-catalog) .doc-body {
-    --content-width: min(var(--reading-width), 100% - 260px);
+    --content-width: min(var(--reading-width), 100% - var(--toc-reserve));
   }
 }
 
@@ -314,13 +334,14 @@ body.is-resizing {
 /* 右栏目录 */
 .article-catalog {
   position: fixed;
-  top: 80px;
+  top: calc(var(--nav-height) + var(--space-5));
   right: 0;
   z-index: var(--z-catalog);
   width: var(--catalog-width);
   /* 避开右侧悬浮工具条 */
-  padding-right: 48px;
-  max-height: calc(100vh - 100px);
+  padding-right: var(--space-8);
+  max-height: calc(100vh - var(--nav-height) - var(--space-6));
+  max-height: calc(100dvh - var(--nav-height) - var(--space-6));
   overflow-y: auto;
 }
 
@@ -344,6 +365,10 @@ body.is-resizing {
   font-size: 1rem;
   cursor: pointer;
   transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.article-catalog li.level-3 {
+  padding-left: calc(var(--space-3) + var(--space-4));
 }
 
 .article-catalog li:hover {
@@ -374,6 +399,7 @@ body.is-resizing {
   background: var(--bg-content);
   box-shadow: var(--shadow-panel);
   color: var(--text-light);
+  font-size: 0.875rem;
   cursor: pointer;
   transition: color var(--transition-fast), border-color var(--transition-fast);
 }
@@ -410,7 +436,7 @@ body.theme-dark .switch-theme .fa-moon {
   border: none;
   background: none;
   color: var(--text-light);
-  font-size: 13px;
+  font-size: 0.8125rem;
   line-height: 1.5;
   transition: color var(--transition-fast), background-color var(--transition-fast);
 }
@@ -442,7 +468,6 @@ body.theme-dark .switch-theme .fa-moon {
   .navbar {
     gap: var(--space-1);
     padding: 0 var(--space-4);
-    overflow-x: auto;
   }
 
   .navbar .menu {
@@ -451,10 +476,11 @@ body.theme-dark .switch-theme .fa-moon {
   }
 
   .navbar .logo {
-    font-size: 20px;
+    flex-shrink: 0;
+    font-size: 1.25rem;
   }
 
-  .navbar .login {
+  .navbar .page-breadcrumb {
     display: none;
   }
 
@@ -466,7 +492,6 @@ body.theme-dark .switch-theme .fa-moon {
   .main-container.nav-open .categories {
     left: 0;
     width: 100%;
-    height: 100%;
   }
 
   .main-articles {
@@ -474,11 +499,49 @@ body.theme-dark .switch-theme .fa-moon {
   }
 
   .article-title {
-    font-size: calc(2.4rem * var(--font-scale, 1));
+    font-size: 2.4rem;
   }
 
+  /* 阅读工具并入顶栏，手机上仍能切主题和字号 */
   .side-tools {
-    display: none;
+    position: static;
+    flex-direction: row;
+    margin-left: auto;
+    gap: var(--space-1);
+    transform: none;
+  }
+
+  .switch-theme {
+    flex-direction: row;
+    padding: var(--space-1) var(--space-2);
+  }
+
+  .font-size-control {
+    flex-direction: row;
+  }
+
+  .font-size-control button + button {
+    border-top: none;
+    border-left: 1px solid var(--border-light);
+  }
+
+  .navbar .login {
+    margin-left: 0;
+  }
+
+  /* 窄屏只留头像和退出图标，游客仍显示“登录账户” */
+  .navbar .login a {
+    margin: 0;
+    font-size: 0;
+  }
+
+  .navbar .login .login-avatar,
+  .navbar .login a i {
+    font-size: 0.9375rem;
+  }
+
+  .navbar .login b {
+    font-size: 0.875rem;
   }
 
   .doc-actions .btn,
@@ -493,6 +556,7 @@ body.theme-dark .switch-theme .fa-moon {
 
   .modal {
     max-height: calc(100vh - var(--space-8));
+    max-height: calc(100dvh - var(--space-8));
   }
 }
 
