@@ -500,6 +500,7 @@ body.theme-dark .cherry .cherry-toolbar {
 }
 
 .modal-body {
+  min-height: 0;
   padding: var(--space-4) var(--space-5) var(--space-5);
   overflow-y: auto;
 }
@@ -536,96 +537,60 @@ body.theme-dark .cherry .cherry-toolbar {
   }
 }
 
-/* 改动记录与 diff */
+/* 改动记录 */
 .history-list {
-  max-height: 40vh;
   margin: 0;
   padding: 0;
-  overflow-y: auto;
   list-style: none;
 }
 
 .history-list li {
-  padding: var(--space-2);
   border-bottom: 1px solid var(--border-light);
-  cursor: pointer;
 }
 
-.history-list li:hover {
-  background: var(--bg-hover);
-}
-
-.history-message {
-  color: var(--text-color);
-  font-size: 1rem;
-  word-break: break-all;
-}
-
-.history-meta {
-  color: var(--text-lighter);
-  font-size: 0.78rem;
-}
-
-.commit-detail {
-  margin-top: var(--space-3);
-}
-
-.diff-file {
-  margin-top: var(--space-3);
-}
-
-.diff-head {
+.history-item {
   display: flex;
-  justify-content: space-between;
-  padding: var(--space-1) 0;
-  border-top: 1px solid var(--border-light);
-  color: var(--text-color);
-  font-size: 0.9rem;
-}
-
-.diff-stat em {
-  color: var(--diff-add);
-  font-style: normal;
-}
-
-.diff-stat del {
-  color: var(--diff-del);
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-2);
+  color: inherit;
   text-decoration: none;
 }
 
-.diff-block {
-  max-height: 420px;
-  margin: 0;
-  padding: var(--space-2);
-  border-radius: var(--radius-md);
-  background: var(--bg-secondary);
-  overflow: auto;
-  font-size: 0.75rem;
-  line-height: 1.5;
+.history-item:hover {
+  background: var(--bg-hover);
 }
 
-.diff-line {
+.history-main {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.history-message {
+  overflow: hidden;
   color: var(--text-color);
-  font-family: var(--font-mono);
-  white-space: pre-wrap;
-  word-break: break-all;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.diff-line.add {
-  background: var(--diff-add-bg);
-}
-
-.diff-line.del {
-  background: var(--diff-del-bg);
-}
-
-.diff-line.hunk {
-  background: var(--diff-hunk-bg);
-  color: var(--diff-hunk);
-}
-
-.diff-line.meta {
+.history-meta {
+  overflow: hidden;
   color: var(--text-lighter);
+  font-size: 0.78rem;
+  line-height: 1.5;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history-item > i {
+  flex-shrink: 0;
+  color: var(--text-lighter);
+  font-size: 0.75rem;
 }
 
 /* Mermaid */

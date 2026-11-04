@@ -61,8 +61,6 @@ html::-webkit-scrollbar,
 .categories::-webkit-scrollbar,
 .article-catalog::-webkit-scrollbar,
 .modal-body::-webkit-scrollbar,
-.history-list::-webkit-scrollbar,
-.diff-block::-webkit-scrollbar,
 .admin-table-wrap::-webkit-scrollbar,
 pre::-webkit-scrollbar {
   width: 8px;
@@ -73,8 +71,6 @@ html::-webkit-scrollbar-thumb,
 .categories::-webkit-scrollbar-thumb,
 .article-catalog::-webkit-scrollbar-thumb,
 .modal-body::-webkit-scrollbar-thumb,
-.history-list::-webkit-scrollbar-thumb,
-.diff-block::-webkit-scrollbar-thumb,
 .admin-table-wrap::-webkit-scrollbar-thumb,
 pre::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
@@ -85,8 +81,6 @@ html::-webkit-scrollbar-track,
 .categories::-webkit-scrollbar-track,
 .article-catalog::-webkit-scrollbar-track,
 .modal-body::-webkit-scrollbar-track,
-.history-list::-webkit-scrollbar-track,
-.diff-block::-webkit-scrollbar-track,
 .admin-table-wrap::-webkit-scrollbar-track,
 pre::-webkit-scrollbar-track {
   background: transparent;

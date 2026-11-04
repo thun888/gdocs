@@ -33,6 +33,7 @@ type Commit struct {
 	Author  string    `json:"author"`
 	Email   string    `json:"email"`
 	Date    time.Time `json:"date"`
+	URL     string    `json:"url"`
 }
 
 type FileDiff struct {

@@ -65,18 +65,7 @@ export interface Commit {
   author: string
   email: string
   date: string
-}
-
-export interface FileDiff {
-  filename: string
-  status: string
-  additions: number
-  deletions: number
-  patch: string
-}
-
-export interface CommitDetail extends Commit {
-  files: FileDiff[]
+  url: string
 }
 
 export interface AdminSource {

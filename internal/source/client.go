@@ -261,8 +261,9 @@ func (c *Client) Move(ctx context.Context, from, to, sha, message string, id Ide
 }
 
 type commitResponse struct {
-	SHA    string `json:"sha"`
-	Commit struct {
+	SHA     string `json:"sha"`
+	HTMLURL string `json:"html_url"`
+	Commit  struct {
 		Message string `json:"message"`
 		Author  struct {
 			Name  string    `json:"name"`
@@ -273,13 +274,18 @@ type commitResponse struct {
 	Files []FileDiff `json:"files"`
 }
 
-func (r commitResponse) toCommit() Commit {
+func (c *Client) toCommit(r commitResponse) Commit {
+	webURL := r.HTMLURL
+	if webURL == "" {
+		webURL = c.baseURL + "/" + url.PathEscape(c.owner) + "/" + url.PathEscape(c.repo) + "/commit/" + url.PathEscape(r.SHA)
+	}
 	return Commit{
 		SHA:     r.SHA,
 		Message: r.Commit.Message,
 		Author:  r.Commit.Author.Name,
 		Email:   r.Commit.Author.Email,
 		Date:    r.Commit.Author.Date,
+		URL:     webURL,
 	}
 }
 
@@ -294,7 +300,7 @@ func (c *Client) commits(ctx context.Context, p string, limit int) ([]Commit, er
 	}
 	out := make([]Commit, 0, len(resp))
 	for _, item := range resp {
-		out = append(out, item.toCommit())
+		out = append(out, c.toCommit(item))
 	}
 	return out, nil
 }
@@ -312,7 +318,7 @@ func (c *Client) Commit(ctx context.Context, sha string) (*CommitDetail, error) 
 	if err := c.do(ctx, http.MethodGet, "/git/commits/"+url.PathEscape(sha), nil, nil, &resp); err != nil {
 		return nil, err
 	}
-	detail := &CommitDetail{Commit: resp.toCommit(), Files: resp.Files}
+	detail := &CommitDetail{Commit: c.toCommit(resp), Files: resp.Files}
 	if len(detail.Files) == 0 {
 		var withFiles struct {
 			Files []FileDiff `json:"files"`
