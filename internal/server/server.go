@@ -25,9 +25,19 @@ type Server struct {
 func New(cfg *config.Config, db *gorm.DB, api *httpapi.API) *gin.Engine {
 	s := &Server{cfg: cfg, db: db}
 
+	if cfg.Log.Debug {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := gin.New()
 	_ = r.SetTrustedProxies(cfg.Server.TrustedProxies)
-	r.Use(gin.Recovery(), requestLogger(), securityHeaders())
+	r.Use(gin.Recovery())
+	if cfg.Log.Access {
+		r.Use(requestLogger())
+	}
+	r.Use(securityHeaders())
 	r.GET("/healthz", s.healthz)
 	api.Register(r)
 	s.mountStatic(r)

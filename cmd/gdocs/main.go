@@ -16,6 +16,7 @@ import (
 	"github.com/thun888/gdocs-go/internal/cryptox"
 	"github.com/thun888/gdocs-go/internal/doc"
 	"github.com/thun888/gdocs-go/internal/httpapi"
+	"github.com/thun888/gdocs-go/internal/logging"
 	"github.com/thun888/gdocs-go/internal/server"
 	"github.com/thun888/gdocs-go/internal/storage"
 	"github.com/thun888/gdocs-go/internal/store"
@@ -26,13 +27,14 @@ func main() {
 	migrateOnly := flag.Bool("migrate", false, "执行数据库迁移后退出")
 	flag.Parse()
 
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
+	logging.Setup(config.Log{})
 
 	cfg, err := config.Load(*configPath)
 	if err != nil {
 		slog.Error("加载配置失败", "error", err)
 		os.Exit(1)
 	}
+	logging.Setup(cfg.Log)
 
 	db, err := store.Open(cfg.Database)
 	if err != nil {

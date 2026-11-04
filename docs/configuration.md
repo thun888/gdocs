@@ -25,6 +25,16 @@ gdocs -c /etc/gdocs/config.yaml
 
 `session_key` 更换后，已有会话全部失效。
 
+## log
+
+| 字段 | 默认值 | 说明 |
+|---|---|---|
+| `debug` | `false` | 调试模式：输出 `debug` 级别日志，并启用 gin 的调试输出 |
+| `access` | `true` | 是否输出访问日志 |
+| `format` | `text` | 日志格式，可选 `text` 或 `json` |
+
+日志输出到标准输出。`format: json` 便于接入日志采集系统；关闭 `access` 后不再记录每个请求的方法、路径、状态码、耗时和客户端 IP。
+
 ## database
 
 | 字段 | 默认值 | 说明 |

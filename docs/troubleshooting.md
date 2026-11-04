@@ -219,7 +219,7 @@ npm run build
 journalctl -u gdocs -f
 ```
 
-`GIN_MODE=release` 可以减少调试路由日志，但不会隐藏业务日志。
+`log.debug: true` 会输出调试信息并启用 gin 的调试输出，`log.access: false` 可以关闭访问日志，业务日志仍会保留。
 
 健康检查：
 

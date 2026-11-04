@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/thun888/gdocs-go/internal/config"
+	"github.com/thun888/gdocs-go/internal/logging"
 	"github.com/thun888/gdocs-go/internal/migrate/showdoc"
 )
 
@@ -30,13 +31,14 @@ func main() {
 	clearProxy := flag.Bool("clear-git-proxy", false, "执行 git 时清空 http.proxy")
 	flag.Parse()
 
-	slog.SetDefault(slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})))
+	logging.Setup(config.Log{})
 
 	cfg, err := config.Load(*configPath)
 	if err != nil {
 		slog.Error("加载配置失败", "error", err)
 		os.Exit(1)
 	}
+	logging.Setup(cfg.Log)
 	if *sourceSlug == "" {
 		if len(cfg.Sources) == 0 {
 			slog.Error("配置中没有来源")

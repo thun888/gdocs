@@ -45,13 +45,7 @@ config.yaml
 ./gdocs -c /etc/gdocs/config.yaml
 ```
 
-默认监听 `:8080`。生产环境建议设置：
-
-```bash
-export GIN_MODE=release
-```
-
-减少调试路由日志。
+默认监听 `:8080`。生产环境保持 `log.debug: false` 即可，gin 会以 release 模式运行，减少调试输出。
 
 ## systemd
 
@@ -66,7 +60,6 @@ User=gdocs
 Group=gdocs
 WorkingDirectory=/opt/gdocs
 ExecStart=/opt/gdocs/gdocs -c /etc/gdocs/config.yaml
-Environment=GIN_MODE=release
 Restart=on-failure
 RestartSec=3
 

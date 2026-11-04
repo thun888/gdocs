@@ -12,6 +12,7 @@ import (
 
 type Config struct {
 	Server    Server    `yaml:"server"`
+	Log       Log       `yaml:"log"`
 	Database  Database  `yaml:"database"`
 	OAuth     OAuth     `yaml:"oauth"`
 	ProxyAuth ProxyAuth `yaml:"proxy_auth"`
@@ -20,6 +21,12 @@ type Config struct {
 	Index     Index     `yaml:"index"`
 	S3        S3        `yaml:"s3"`
 	Sources   []Source  `yaml:"sources"`
+}
+
+type Log struct {
+	Debug  bool   `yaml:"debug"`
+	Access bool   `yaml:"access"`
+	Format string `yaml:"format"`
 }
 
 type Server struct {
@@ -115,6 +122,8 @@ func Load(path string) (*Config, error) {
 	}
 
 	var cfg Config
+	// yaml 只覆盖文档中出现的字段，未配置 log.access 时保持默认开启
+	cfg.Log.Access = true
 	dec := yaml.NewDecoder(strings.NewReader(expanded))
 	dec.KnownFields(true)
 	if err := dec.Decode(&cfg); err != nil {
@@ -146,6 +155,9 @@ func expandEnv(raw string) (string, error) {
 func (c *Config) applyDefaults() {
 	if c.Server.Addr == "" {
 		c.Server.Addr = ":8080"
+	}
+	if c.Log.Format == "" {
+		c.Log.Format = "text"
 	}
 	if c.Database.MaxOpen == 0 {
 		c.Database.MaxOpen = 20
@@ -217,6 +229,9 @@ func (c *Config) validate() error {
 	}
 	if c.Git.BotEmail == "" {
 		problems = append(problems, "git.bot_email 不能为空")
+	}
+	if c.Log.Format != "text" && c.Log.Format != "json" {
+		problems = append(problems, "log.format 只能是 text 或 json")
 	}
 
 	seen := make(map[string]bool, len(c.Sources))

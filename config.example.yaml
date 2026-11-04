@@ -15,6 +15,14 @@ server:
   # 留空表示一律使用连接地址
   trusted_proxies: []
 
+log:
+  # 调试模式：输出 debug 级别日志，并启用 gin 的调试输出
+  debug: false
+  # 是否输出访问日志；关闭后仅保留业务日志
+  access: true
+  # 日志格式：text 或 json
+  format: "text"
+
 database:
   dsn: "postgres://gdocs:gdocs@127.0.0.1:5432/gdocs?sslmode=disable"
   max_open: 20
