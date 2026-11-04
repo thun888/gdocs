@@ -44,7 +44,7 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
           </button>
         </div>
       </div>
-      <div className={`main-container${menuOpen ? ' nav-open' : ''}`}>
+      <div className={`main-container${sidebar ? ' has-sidebar' : ''}${menuOpen ? ' nav-open' : ''}`}>
         <div className="navbar">
           <span className="menu" onClick={() => setMenuOpen((open) => !open)}>
             <i className="fas fa-bars" />

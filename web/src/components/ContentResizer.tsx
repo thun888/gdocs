@@ -4,7 +4,9 @@ export const MIN_CONTENT_WIDTH = 560
 
 export function maxContentWidth(): number {
   const main = document.querySelector<HTMLElement>('.main-articles')
-  const available = main ? main.clientWidth - 80 : window.innerWidth - 380
+  if (!main) return window.innerWidth - 380
+  const style = getComputedStyle(main)
+  const available = main.clientWidth - parseFloat(style.paddingLeft) - parseFloat(style.paddingRight)
   return Math.max(MIN_CONTENT_WIDTH, Math.round(available))
 }
 

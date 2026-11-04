@@ -225,12 +225,19 @@
 
 /* 正文区 */
 .main-articles {
-  margin-left: var(--sidebar-width);
   min-height: 100vh;
-  padding: calc(var(--nav-height) + var(--space-5)) 40px 55px;
+  /* 右侧留出浮动工具条的位置 */
+  padding: calc(var(--nav-height) + var(--space-5)) 64px var(--space-8) 40px;
   background-color: var(--bg-color);
   background-image: var(--bg-image);
   background-size: var(--bg-size);
+}
+
+/* 没有侧栏的页面（首页、管理后台）不预留侧栏宽度 */
+@media (min-width: 769px) {
+  .main-container.has-sidebar .main-articles {
+    margin-left: var(--sidebar-width);
+  }
 }
 
 .article-title {
@@ -246,10 +253,23 @@
   outline: none;
 }
 
+/* 无侧栏时正文列居中，宽屏下不会偏向一侧 */
+.main-container:not(.has-sidebar) .article-title,
+.main-container:not(.has-sidebar) .article-content,
+.main-container:not(.has-sidebar) .admin-page {
+  margin-inline: auto;
+}
+
 /* 文档正文：宽度可拖动调整，默认限制在阅读宽度内 */
 .doc-body {
-  --content-width: min(900px, 100%);
   position: relative;
+}
+
+/* 目录占据右侧 260px，正文让开，避免两者重叠 */
+@media (min-width: 1201px) {
+  .main-articles:has(.article-catalog) .doc-body {
+    --content-width: min(var(--reading-width), 100% - 260px);
+  }
 }
 
 .content-resizer {
@@ -298,6 +318,8 @@ body.is-resizing {
   right: 0;
   z-index: var(--z-catalog);
   width: var(--catalog-width);
+  /* 避开右侧悬浮工具条 */
+  padding-right: 48px;
   max-height: calc(100vh - 100px);
   overflow-y: auto;
 }
@@ -448,8 +470,7 @@ body.theme-dark .switch-theme .fa-moon {
   }
 
   .main-articles {
-    margin-left: 0;
-    padding: calc(var(--nav-height) + var(--space-5)) var(--space-5) 55px;
+    padding: calc(var(--nav-height) + var(--space-5)) var(--space-5) var(--space-8);
   }
 
   .article-title {

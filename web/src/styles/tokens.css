@@ -48,7 +48,8 @@
 
   --nav-height: 60px;
   --sidebar-width: 300px;
-  --content-width: 75%;
+  --reading-width: 900px;
+  --content-width: min(100%, var(--reading-width));
   --catalog-width: 20%;
 
   --shadow-nav: 0 1px 8px var(--shadow-color);
