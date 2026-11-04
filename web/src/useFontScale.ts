@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'gdocs-font-scale'
-const STEPS = [0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5]
+const STEPS = [0.8, 0.9, 1, 1.1, 1.2, 1.3]
 
 function readScale(): number {
   const saved = Number(window.localStorage.getItem(STORAGE_KEY))
