@@ -2,11 +2,8 @@ package server
 
 import (
 	"context"
-	"io/fs"
 	"log/slog"
 	"net/http"
-	"path"
-	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -61,23 +58,8 @@ func (s *Server) healthz(c *gin.Context) {
 }
 
 func (s *Server) mountStatic(r *gin.Engine) {
-	dist := web.Dist()
-	files := http.FileServer(http.FS(dist))
-
-	r.NoRoute(func(c *gin.Context) {
-		if strings.HasPrefix(c.Request.URL.Path, "/api/") {
-			c.JSON(http.StatusNotFound, gin.H{"code": 404, "message": "接口不存在"})
-			return
-		}
-		if name := strings.TrimPrefix(path.Clean(c.Request.URL.Path), "/"); name != "" && name != "." {
-			if info, err := fs.Stat(dist, name); err == nil && !info.IsDir() {
-				files.ServeHTTP(c.Writer, c.Request)
-				return
-			}
-		}
-		c.Request.URL.Path = "/"
-		files.ServeHTTP(c.Writer, c.Request)
-	})
+	assets := &staticAssets{fs: web.Dist()}
+	r.NoRoute(assets.handle)
 }
 
 func securityHeaders() gin.HandlerFunc {
