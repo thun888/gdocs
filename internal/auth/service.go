@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/url"
 	"strings"
 	"sync"
 	"time"
@@ -33,6 +34,7 @@ type Service struct {
 	store *store.Store
 	oidc  *oidcClient
 	sess  *sessionManager
+	proxy *proxyAuth
 
 	refreshLocks sync.Map
 }
@@ -42,11 +44,16 @@ func New(cfg *config.Config, st *store.Store) (*Service, error) {
 	if err != nil {
 		return nil, err
 	}
+	proxy, err := newProxyAuth(cfg, st)
+	if err != nil {
+		return nil, err
+	}
 	return &Service{
 		cfg:   cfg,
 		store: st,
 		oidc:  newOIDCClient(cfg.OAuth),
 		sess:  sess,
+		proxy: proxy,
 	}, nil
 }
 
@@ -242,8 +249,48 @@ func (s *Service) Logout(ctx context.Context, sid string) {
 	}
 }
 
-func (s *Service) CSRF(sid string) string {
-	return s.sess.csrfToken(sid)
+func (s *Service) CSRFToken(c *gin.Context) string {
+	if sid, ok := SessionID(c); ok {
+		return s.sess.csrfToken(sid)
+	}
+	if user, ok := User(c); ok {
+		return s.sess.csrfProxyToken(user.Subject)
+	}
+	return ""
+}
+
+func (s *Service) ProxyLoginURL(redirect string) string {
+	if s.proxy == nil || s.cfg.ProxyAuth.LoginURL == "" {
+		return ""
+	}
+	if redirect == "" || !strings.HasPrefix(redirect, "/") || strings.HasPrefix(redirect, "//") {
+		redirect = "/"
+	}
+	target := redirect
+	if base := strings.TrimSuffix(s.cfg.Server.BaseURL, "/"); base != "" {
+		target = base + redirect
+	}
+	return strings.ReplaceAll(s.cfg.ProxyAuth.LoginURL, "{redirect}", url.QueryEscape(target))
+}
+
+func (s *Service) ProxyLogoutURL() string {
+	if s.proxy == nil {
+		return ""
+	}
+	return s.cfg.ProxyAuth.LogoutURL
+}
+
+func (s *Service) InvalidateProxyCache() {
+	if s.proxy != nil {
+		s.proxy.invalidate()
+	}
+}
+
+func (s *Service) denyMessage() string {
+	if message := strings.TrimSpace(s.cfg.Access.DenyMessage); message != "" {
+		return message
+	}
+	return "当前账号不在访问范围内"
 }
 
 func (s *Service) SetSessionCookie(c *gin.Context, sid string) { s.sess.setCookie(c, sid) }

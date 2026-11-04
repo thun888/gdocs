@@ -63,6 +63,50 @@ oauth:
 
 `bootstrap_admin` 里的账号不受 `access.allowed_groups` 限制，并且角色固定为 `admin`。
 
+## proxy_auth
+
+前置代理身份认证。启用后由 tinyauth 之类的 forward-auth 服务完成登录，gdocs 直接采信代理转发的身份头，不再单独跳转登录页。
+
+| 字段 | 默认值 | 说明 |
+|---|---|---|
+| `enabled` | `false` | 是否启用 |
+| `user_header` | `Remote-User` | 用户名 |
+| `sub_header` | `Remote-Sub` | 唯一标识，为空时回落到用户名 |
+| `email_header` | `Remote-Email` | 邮箱 |
+| `name_header` | `Remote-Name` | 显示名称 |
+| `groups_header` | `Remote-Groups` | 逗号分隔的用户组 |
+| `login_url` | 空 | 登录页地址，支持 `{redirect}` 占位符；留空时 `/api/v1/auth/login` 仍走 OIDC |
+| `logout_url` | 空 | 退出后跳转的地址，通常是 tinyauth 的退出页 |
+| `cache_seconds` | `60` | 同一用户的身份缓存时长 |
+
+安全要求：
+
+- `server.trusted_proxies` 必须填写代理地址，只有这些地址发来的身份头才会被采信。
+- 代理必须在转发前覆盖或删除客户端自带的 `Remote-*` 头，否则用户可以伪造身份。
+- gdocs 不应暴露在能绕过代理的地址上。
+
+行为说明：
+
+- 身份头存在时优先于本站会话，在代理上切换账号后 gdocs 会立即跟着切换。
+- `Remote-Sub` 与 OIDC 的 `sub` 一致时，同一个用户在两种登录方式下共用一条记录；不一致会新建用户。
+- `Remote-Groups` 有值时按组同步角色；为空时保留数据库里的角色，也不校验 `access.allowed_groups`，此时访问范围由代理自己控制。
+- `bootstrap_admin` 按 `subject` 匹配；`Remote-Sub` 缺失时 subject 就是用户名。
+
+示例：
+
+```yaml
+server:
+  base_url: "https://docs.example.com"
+  trusted_proxies: ["127.0.0.1"]
+
+proxy_auth:
+  enabled: true
+  login_url: "https://auth.example.com/login?redirect_uri={redirect}"
+  logout_url: "https://auth.example.com/logout"
+```
+
+启用并配置 `login_url` 后，`oauth` 段可以整体省略。
+
 ## access
 
 | 字段 | 默认值 | 说明 |

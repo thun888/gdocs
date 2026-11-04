@@ -11,14 +11,15 @@ import (
 )
 
 type Config struct {
-	Server   Server   `yaml:"server"`
-	Database Database `yaml:"database"`
-	OAuth    OAuth    `yaml:"oauth"`
-	Access   Access   `yaml:"access"`
-	Git      Git      `yaml:"git"`
-	Index    Index    `yaml:"index"`
-	S3       S3       `yaml:"s3"`
-	Sources  []Source `yaml:"sources"`
+	Server    Server    `yaml:"server"`
+	Database  Database  `yaml:"database"`
+	OAuth     OAuth     `yaml:"oauth"`
+	ProxyAuth ProxyAuth `yaml:"proxy_auth"`
+	Access    Access    `yaml:"access"`
+	Git       Git       `yaml:"git"`
+	Index     Index     `yaml:"index"`
+	S3        S3        `yaml:"s3"`
+	Sources   []Source  `yaml:"sources"`
 }
 
 type Server struct {
@@ -44,6 +45,18 @@ type OAuth struct {
 	Scopes         []string `yaml:"scopes"`
 	GroupsClaim    string   `yaml:"groups_claim"`
 	BootstrapAdmin []string `yaml:"bootstrap_admin"`
+}
+
+type ProxyAuth struct {
+	Enabled      bool   `yaml:"enabled"`
+	UserHeader   string `yaml:"user_header"`
+	SubHeader    string `yaml:"sub_header"`
+	EmailHeader  string `yaml:"email_header"`
+	NameHeader   string `yaml:"name_header"`
+	GroupsHeader string `yaml:"groups_header"`
+	LoginURL     string `yaml:"login_url"`
+	LogoutURL    string `yaml:"logout_url"`
+	CacheSeconds int    `yaml:"cache_seconds"`
 }
 
 type Access struct {
@@ -146,6 +159,24 @@ func (c *Config) applyDefaults() {
 	if c.OAuth.GroupsClaim == "" {
 		c.OAuth.GroupsClaim = "groups"
 	}
+	if c.ProxyAuth.UserHeader == "" {
+		c.ProxyAuth.UserHeader = "Remote-User"
+	}
+	if c.ProxyAuth.SubHeader == "" {
+		c.ProxyAuth.SubHeader = "Remote-Sub"
+	}
+	if c.ProxyAuth.EmailHeader == "" {
+		c.ProxyAuth.EmailHeader = "Remote-Email"
+	}
+	if c.ProxyAuth.NameHeader == "" {
+		c.ProxyAuth.NameHeader = "Remote-Name"
+	}
+	if c.ProxyAuth.GroupsHeader == "" {
+		c.ProxyAuth.GroupsHeader = "Remote-Groups"
+	}
+	if c.ProxyAuth.CacheSeconds <= 0 {
+		c.ProxyAuth.CacheSeconds = 60
+	}
 	if c.Index.TTLMinutes == 0 {
 		c.Index.TTLMinutes = 10
 	}
@@ -168,16 +199,21 @@ func (c *Config) validate() error {
 	if c.Database.DSN == "" {
 		problems = append(problems, "database.dsn 不能为空")
 	}
-	if c.OAuth.Issuer == "" {
-		problems = append(problems, "oauth.issuer 不能为空")
+	if c.ProxyAuth.Enabled && len(c.Server.TrustedProxies) == 0 {
+		problems = append(problems, "启用 proxy_auth 时 server.trusted_proxies 不能为空")
 	}
-	if c.OAuth.ClientID == "" || c.OAuth.ClientSecret == "" {
-		problems = append(problems, "oauth.client_id 与 client_secret 不能为空")
-	}
-	if c.OAuth.RedirectURL == "" {
-		problems = append(problems, "oauth.redirect_url 不能为空")
-	} else if u, err := url.Parse(c.OAuth.RedirectURL); err != nil || u.Scheme == "" || u.Host == "" {
-		problems = append(problems, "oauth.redirect_url 必须是绝对地址")
+	if !c.ProxyAuth.Enabled || c.ProxyAuth.LoginURL == "" {
+		if c.OAuth.Issuer == "" {
+			problems = append(problems, "oauth.issuer 不能为空")
+		}
+		if c.OAuth.ClientID == "" || c.OAuth.ClientSecret == "" {
+			problems = append(problems, "oauth.client_id 与 client_secret 不能为空")
+		}
+		if c.OAuth.RedirectURL == "" {
+			problems = append(problems, "oauth.redirect_url 不能为空")
+		} else if u, err := url.Parse(c.OAuth.RedirectURL); err != nil || u.Scheme == "" || u.Host == "" {
+			problems = append(problems, "oauth.redirect_url 必须是绝对地址")
+		}
 	}
 	if c.Git.BotEmail == "" {
 		problems = append(problems, "git.bot_email 不能为空")

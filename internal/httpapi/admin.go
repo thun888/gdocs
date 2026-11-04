@@ -235,6 +235,7 @@ func (a *API) handleUpdateGroup(c *gin.Context) {
 		fail(c, http.StatusInternalServerError, "更新用户组失败")
 		return
 	}
+	a.auth.InvalidateProxyCache()
 	ok(c, gin.H{"updated": id})
 }
 

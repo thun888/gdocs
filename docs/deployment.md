@@ -131,6 +131,69 @@ oauth:
 - `client_max_body_size` 要大于图片大小上限，给表单开销留余量。
 - 健康检查地址为 `/healthz`。
 
+### tinyauth 前置认证
+
+用 tinyauth 接管登录时，让它把身份头写进转发给 gdocs 的请求：
+
+```nginx
+location / {
+    auth_request /tinyauth;
+
+    auth_request_set $remote_user   $upstream_http_remote_user;
+    auth_request_set $remote_sub    $upstream_http_remote_sub;
+    auth_request_set $remote_name   $upstream_http_remote_name;
+    auth_request_set $remote_email  $upstream_http_remote_email;
+    auth_request_set $remote_groups $upstream_http_remote_groups;
+
+    proxy_set_header Remote-User   $remote_user;
+    proxy_set_header Remote-Sub    $remote_sub;
+    proxy_set_header Remote-Name   $remote_name;
+    proxy_set_header Remote-Email  $remote_email;
+    proxy_set_header Remote-Groups $remote_groups;
+
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+}
+
+location = /tinyauth {
+    internal;
+    proxy_pass http://tinyauth:3000/api/auth/nginx;
+    proxy_pass_request_body off;
+    proxy_set_header Content-Length "";
+    proxy_set_header X-Original-URL $scheme://$http_host$request_uri;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+}
+
+error_page 401 = @tinyauth_login;
+location @tinyauth_login {
+    return 302 https://auth.example.com/login?redirect_uri=$scheme://$http_host$request_uri;
+}
+```
+
+Traefik 在 forwardauth 的 `authResponseHeaders` 里列出 `remote-user,remote-sub,remote-name,remote-email,remote-groups`；Caddy 使用 `copy_headers remote-user remote-sub remote-name remote-email remote-groups`。
+
+对应配置：
+
+```yaml
+server:
+  trusted_proxies: ["127.0.0.1"]
+
+proxy_auth:
+  enabled: true
+  login_url: "https://auth.example.com/login?redirect_uri={redirect}"
+  logout_url: "https://auth.example.com/logout"
+```
+
+要点：
+
+- 身份头只在请求来自 `trusted_proxies` 时生效。gdocs 不能暴露在绕过代理的地址上，否则可以直接伪造 `Remote-User`。
+- 上面的 `proxy_set_header` 会覆盖客户端自带的同名头。使用别的代理时，确认它同样会覆盖，而不是透传。
+- 要拿到用户组，tinyauth 需要从 OIDC 或 LDAP 取到 `groups` 并转发 `Remote-Groups`；没有这一项时按库里已有角色处理。
+- 在 tinyauth 上切换账号后，gdocs 最多 `cache_seconds` 秒后跟着切换。
+
 ## 对象存储
 
 图片由服务端直接写入 S3，浏览器通过 `s3.public_base` 读取：

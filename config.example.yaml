@@ -42,6 +42,27 @@ access:
   # 用户组不匹配时返回的提示
   deny_message: "当前账号不在 gdocs 的访问范围内"
 
+# 前置代理身份认证。启用后由 tinyauth 之类的 forward-auth 完成登录，
+# gdocs 直接采信代理转发的身份头，不再单独跳转登录页。
+# 需要同时把 server.trusted_proxies 设为代理地址，且代理必须覆盖客户端自带的身份头。
+# 配置了 login_url 时 oauth 段可以整个省略。
+proxy_auth:
+  enabled: false
+  # 对应 tinyauth 的 Remote-* 响应头
+  user_header: "Remote-User"
+  # 唯一标识；与 OIDC 的 sub 一致时，两种登录方式会落到同一个用户
+  sub_header: "Remote-Sub"
+  email_header: "Remote-Email"
+  name_header: "Remote-Name"
+  # 逗号分隔的用户组；为空时保留库里的角色，也不校验 access.allowed_groups
+  groups_header: "Remote-Groups"
+  # 登录页地址，{redirect} 会替换为编码后的回跳地址；留空则继续走本站 OIDC
+  login_url: ""
+  # 退出后跳转的地址，通常是 tinyauth 的退出页；留空只清除本站会话
+  logout_url: ""
+  # 同一用户的身份缓存时长，单位秒
+  cache_seconds: 60
+
 # 提交身份。正常编辑使用登录用户的名称与邮箱；没有登录用户时使用 bot_name，邮箱为空时回落到 bot_email
 git:
   bot_name: "gdocs"

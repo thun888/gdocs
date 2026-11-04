@@ -23,6 +23,10 @@ type userView struct {
 }
 
 func (a *API) handleLogin(c *gin.Context) {
+	if target := a.auth.ProxyLoginURL(c.Query("redirect")); target != "" {
+		c.Redirect(http.StatusFound, target)
+		return
+	}
 	url, payload, err := a.auth.BeginLogin(c.Request.Context(), c.Query("redirect"))
 	if err != nil {
 		slog.Error("发起登录失败", "error", err)
@@ -66,6 +70,10 @@ func (a *API) handleLogout(c *gin.Context) {
 		a.auth.Logout(c.Request.Context(), sid)
 	}
 	a.auth.ClearSessionCookie(c)
+	if target := a.auth.ProxyLogoutURL(); target != "" {
+		ok(c, gin.H{"redirect": target})
+		return
+	}
 	c.JSON(http.StatusOK, gin.H{"code": 0, "message": "已退出"})
 }
 
@@ -80,7 +88,6 @@ func (a *API) handleMe(c *gin.Context) {
 		return
 	}
 
-	sid, _ := auth.SessionID(c)
 	groups, err := a.store.GroupsByUser(c.Request.Context(), user.ID)
 	if err != nil {
 		slog.Error("读取用户组失败", "error", err)
@@ -94,7 +101,7 @@ func (a *API) handleMe(c *gin.Context) {
 	ok(c, gin.H{
 		"user":        toUserView(user),
 		"groups":      list,
-		"csrf":        a.auth.CSRF(sid),
+		"csrf":        a.auth.CSRFToken(c),
 		"public_read": a.cfg.Server.PublicRead,
 	})
 }

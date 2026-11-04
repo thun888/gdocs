@@ -151,6 +151,10 @@ func (m *sessionManager) csrfToken(sid string) string {
 	return deriveToken(m.key, "csrf", sid)
 }
 
+func (m *sessionManager) csrfProxyToken(subject string) string {
+	return deriveToken(m.key, "csrf-proxy", subject)
+}
+
 func (m *sessionManager) stateValue(payload []byte) string {
 	return signValue(m.key, payload)
 }

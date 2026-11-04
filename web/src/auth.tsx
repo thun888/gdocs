@@ -52,7 +52,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const logout = useCallback(async () => {
-    await api.post('/auth/logout')
+    const result = await api.post<{ redirect?: string }>('/auth/logout')
+    if (result?.redirect) {
+      window.location.href = result.redirect
+      return
+    }
     setUser(null)
     setGroups([])
     setCsrf('')

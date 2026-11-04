@@ -2,6 +2,8 @@ package auth
 
 import (
 	"crypto/subtle"
+	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +40,24 @@ func SessionID(c *gin.Context) (string, bool) {
 
 func (s *Service) Optional() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if s.proxy != nil {
+			if id, ok := s.proxy.identify(c); ok {
+				user, err := s.proxy.resolve(c.Request.Context(), id)
+				if errors.Is(err, ErrAccessDenied) {
+					abort(c, http.StatusForbidden, s.denyMessage())
+					return
+				}
+				if err != nil {
+					slog.Error("代理身份认证失败", "error", err, "subject", id.subject)
+					abort(c, http.StatusInternalServerError, "认证失败")
+					return
+				}
+				c.Set(ctxUser, user)
+				c.Next()
+				return
+			}
+		}
+
 		sid, ok := s.sess.sessionID(c)
 		if !ok {
 			c.Next()
@@ -91,13 +111,12 @@ func (s *Service) VerifyCSRF() gin.HandlerFunc {
 			c.Next()
 			return
 		}
-		sid, ok := SessionID(c)
-		if !ok {
+		want := s.CSRFToken(c)
+		if want == "" {
 			abort(c, http.StatusUnauthorized, "未登录")
 			return
 		}
 		header := c.GetHeader("X-CSRF-Token")
-		want := s.sess.csrfToken(sid)
 		if header == "" || subtle.ConstantTimeCompare([]byte(header), []byte(want)) != 1 {
 			abort(c, http.StatusForbidden, "CSRF 校验失败")
 			return

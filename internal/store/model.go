@@ -4,7 +4,7 @@ import "time"
 
 type User struct {
 	ID          uint64    `gorm:"primaryKey"`
-	Subject     string    `gorm:"size:32;not null;uniqueIndex"`
+	Subject     string    `gorm:"size:255;not null;uniqueIndex"`
 	Username    string    `gorm:"size:64;not null"`
 	DisplayName string    `gorm:"size:128;not null;default:''"`
 	Email       string    `gorm:"size:255;not null;default:''"`
