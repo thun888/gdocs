@@ -51,6 +51,7 @@ export function DocPage() {
   const [showHistory, setShowHistory] = useState(false)
   const [catalog, setCatalog] = useState<{ id: string; text: string }[]>([])
   const [contentWidth, setContentWidth] = useState<number | null>(storedContentWidth)
+  const [renderTick, setRenderTick] = useState(0)
   const autoEditApplied = useRef('')
 
   const isDoc = currentPath.toLowerCase().endsWith('.md')
@@ -165,7 +166,9 @@ export function DocPage() {
       setCatalog(headings.map((heading, index) => ({ id: `catalog-${index}`, text: heading.textContent ?? '' })))
     }, 50)
     return () => window.clearTimeout(timer)
-  }, [doc, editing])
+  }, [doc, editing, renderTick])
+
+  const markRendered = useCallback(() => setRenderTick((tick) => tick + 1), [])
 
   const createDoc = async () => {
     const dir = isDoc
@@ -357,7 +360,7 @@ export function DocPage() {
               <Editor value={draft} onChange={setDraft} />
             </div>
           ) : (
-            <MarkdownView content={body} dark={dark} />
+            <MarkdownView content={body} dark={dark} onRendered={markRendered} />
           )}
 
           {showHistory && <HistoryPanel slug={slug} path={doc.path} onClose={() => setShowHistory(false)} />}

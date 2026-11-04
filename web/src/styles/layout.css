@@ -474,3 +474,8 @@ body.theme-dark .switch-theme .fa-moon {
     max-height: calc(100vh - var(--space-8));
   }
 }
+
+.route-loading {
+  padding: var(--space-8) var(--space-4);
+  text-align: center;
+}

@@ -1,21 +1,9 @@
 import DOMPurify from 'dompurify'
-import hljs from 'highlight.js/lib/common'
-import katex from 'katex'
-import mermaid from 'mermaid'
-import 'katex/dist/katex.min.css'
+import { ensureCherry, type CherryInstance } from './loader'
 
-declare global {
-  interface Window {
-    Cherry?: new (options: Record<string, unknown>) => {
-      engine: { makeHtml: (text: string) => string }
-      destroy: () => void
-    }
-  }
-}
+let engine: CherryInstance | null = null
 
-let engine: InstanceType<NonNullable<Window['Cherry']>> | null = null
-
-function cherry() {
+function cherry(): CherryInstance | null {
   if (!engine && window.Cherry) {
     // Cherry 构造时会创建隐藏 textarea 并聚焦，浏览器为露出它会把页面向上滚，
     // 导致标题被固定顶栏遮住。只在构造期间屏蔽 textarea 聚焦，不影响编辑器。
@@ -55,15 +43,19 @@ export function stripLeadingTitle(markdown: string, title: string): string {
   return lines.join('\n')
 }
 
-export function renderMarkdown(markdown: string): string {  const instance = cherry()
+export async function renderMarkdown(markdown: string): Promise<string> {
+  try {
+    await ensureCherry()
+  } catch {
+    /* 渲染器不可用时退回原文，由调用方保证内容可读 */
+  }
+  const instance = cherry()
   const raw = instance ? instance.engine.makeHtml(markdown) : markdown
   return DOMPurify.sanitize(raw, {
     FORBID_TAGS: ['script', 'iframe', 'object', 'embed', 'form', 'input', 'button'],
     FORBID_ATTR: ['onerror', 'onclick', 'onload', 'onmouseover'],
   })
 }
-
-let mermaidReady = false
 
 function texSource(raw: string): string {
   const value = raw.trim()
@@ -81,8 +73,13 @@ function texSource(raw: string): string {
   return value
 }
 
-export function renderMathIn(root: HTMLElement): void {
-  const nodes = root.querySelectorAll<HTMLElement>('.Cherry-InlineMath:not([data-math-done]), .Cherry-Math:not([data-math-done])')
+export async function renderMathIn(root: HTMLElement): Promise<void> {
+  const nodes = root.querySelectorAll<HTMLElement>(
+    '.Cherry-InlineMath:not([data-math-done]), .Cherry-Math:not([data-math-done])',
+  )
+  if (nodes.length === 0) return
+
+  const [{ default: katex }] = await Promise.all([import('katex'), import('./katexStyles')])
   nodes.forEach((node) => {
     const source = node.textContent ?? ''
     if (!source.trim()) return
@@ -101,16 +98,13 @@ export function renderMathIn(root: HTMLElement): void {
   })
 }
 
-export async function enhance(root: HTMLElement, dark: boolean): Promise<void> {
-  renderMathIn(root)
+async function renderDiagrams(root: HTMLElement, dark: boolean): Promise<void> {
+  const blocks = Array.from(root.querySelectorAll<HTMLElement>('pre > code.language-mermaid'))
+  if (blocks.length === 0) return
 
-  if (!mermaidReady) {
-    mermaid.initialize({ startOnLoad: false, securityLevel: 'strict' })
-    mermaidReady = true
-  }
+  const { default: mermaid } = await import('mermaid')
   mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: dark ? 'dark' : 'default' })
 
-  const blocks = Array.from(root.querySelectorAll<HTMLElement>('pre > code.language-mermaid'))
   for (const code of blocks) {
     const source = code.textContent ?? ''
     const id = `mermaid-${Math.random().toString(36).slice(2)}`
@@ -124,13 +118,24 @@ export async function enhance(root: HTMLElement, dark: boolean): Promise<void> {
       code.parentElement?.classList.add('mermaid-error')
     }
   }
+}
 
-  root.querySelectorAll<HTMLElement>('pre code').forEach((block) => {
-    if (block.classList.contains('language-mermaid') || block.classList.contains('hljs')) return
+async function highlightCode(root: HTMLElement): Promise<void> {
+  const blocks = Array.from(root.querySelectorAll<HTMLElement>('pre code')).filter(
+    (block) => !block.classList.contains('language-mermaid') && !block.classList.contains('hljs'),
+  )
+  if (blocks.length === 0) return
+
+  const { default: hljs } = await import('highlight.js/lib/common')
+  for (const block of blocks) {
     try {
       hljs.highlightElement(block)
     } catch {
       /* 忽略未知语言 */
     }
-  })
+  }
+}
+
+export async function enhance(root: HTMLElement, dark: boolean): Promise<void> {
+  await Promise.all([renderMathIn(root), renderDiagrams(root, dark), highlightCode(root)])
 }
