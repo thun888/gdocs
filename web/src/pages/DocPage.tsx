@@ -378,7 +378,7 @@ export function DocPage() {
 
           {showHistory && <HistoryPanel slug={slug} path={doc.path} onClose={() => setShowHistory(false)} />}
 
-          <ContentResizer width={contentWidth} onChange={setContentWidth} />
+          {!editing && <ContentResizer width={contentWidth} onChange={setContentWidth} />}
         </div>
       )}
 
