@@ -166,6 +166,12 @@ type contentResponse struct {
 	Encoding string `json:"encoding"`
 }
 
+type writeResponse struct {
+	Content struct {
+		SHA string `json:"sha"`
+	} `json:"content"`
+}
+
 func (c *Client) Read(ctx context.Context, p string) (*File, error) {
 	var resp contentResponse
 	query := url.Values{"ref": {c.branch}}
@@ -206,7 +212,7 @@ func identity(id Identity) (*identityPayload, *identityPayload) {
 
 func (c *Client) Write(ctx context.Context, p string, content []byte, sha, message string, id Identity) (string, error) {
 	author, committer := identity(id)
-	var resp contentResponse
+	var resp writeResponse
 	body := writeBody{
 		Content:   base64.StdEncoding.EncodeToString(content),
 		Message:   message,
@@ -218,12 +224,12 @@ func (c *Client) Write(ctx context.Context, p string, content []byte, sha, messa
 	if err := c.do(ctx, http.MethodPut, "/contents/"+escapeSegments(c.fullPath(p)), nil, body, &resp); err != nil {
 		return "", err
 	}
-	return resp.SHA, nil
+	return resp.Content.SHA, nil
 }
 
 func (c *Client) Create(ctx context.Context, p string, content []byte, message string, id Identity) (string, error) {
 	author, committer := identity(id)
-	var resp contentResponse
+	var resp writeResponse
 	body := writeBody{
 		Content:   base64.StdEncoding.EncodeToString(content),
 		Message:   message,
@@ -234,7 +240,7 @@ func (c *Client) Create(ctx context.Context, p string, content []byte, message s
 	if err := c.do(ctx, http.MethodPost, "/contents/"+escapeSegments(c.fullPath(p)), nil, body, &resp); err != nil {
 		return "", err
 	}
-	return resp.SHA, nil
+	return resp.Content.SHA, nil
 }
 
 func (c *Client) Delete(ctx context.Context, p, sha, message string, id Identity) error {
