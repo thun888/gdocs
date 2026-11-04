@@ -288,6 +288,12 @@ body.theme-dark .article-content blockquote {
   background: transparent;
 }
 
+.article-content mark,
+.cherry-previewer mark {
+  background: rgb(255 243 205);
+  color: #000;
+}
+
 .article-content kbd {
   display: inline-flex;
   min-width: 2rem;
