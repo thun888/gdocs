@@ -6,13 +6,13 @@ gdocs 是一个把 Markdown 正文存放在 Git 仓库里的文档站。站点�
 
 | 分类 | 文档 | 适合谁 |
 |---|---|---|
-| 入门 | [快速开始](getting-started.md) | 第一次在本机跑起来 |
-| 配置 | [配置参考](configuration.md) | 配置数据库、SSO、仓库和对象存储 |
-| 内容 | [文档仓库规范](content.md) | 写文档、组织目录、控制可见性 |
-| 使用 | [站点使用](user-guide.md) | 浏览、编辑、导入、查看历史 |
-| 管理 | [管理后台](administration.md) | 管理来源、用户组、用户和站点设置 |
-| 部署 | [构建与部署](deployment.md) | 构建二进制、反向代理、升级与备份 |
-| 排查 | [故障排查](troubleshooting.md) | 启动、登录、仓库、上传出问题时 |
+| 入门 | [快速开始](docs/getting-started.md) | 第一次在本机跑起来 |
+| 配置 | [配置参考](docs/configuration.md) | 配置数据库、SSO、仓库和对象存储 |
+| 内容 | [文档仓库规范](docs/content.md) | 写文档、组织目录、控制可见性 |
+| 使用 | [站点使用](docs/user-guide.md) | 浏览、编辑、导入、查看历史 |
+| 管理 | [管理后台](docs/administration.md) | 管理来源、用户组、用户和站点设置 |
+| 部署 | [构建与部署](docs/deployment.md) | 构建二进制、反向代理、升级与备份 |
+| 排查 | [故障排查](docs/troubleshooting.md) | 启动、登录、仓库、上传出问题时 |
 
 ## 推荐阅读顺序
 
