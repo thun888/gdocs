@@ -1,6 +1,6 @@
 # gdocs 使用文档
 
-gdocs 是一个把 Markdown 正文存放在 Git 仓库里的文档站。站点自身只保存用户、权限、来源和文档索引，正文与历史都在 Forgejo（Gitea 兼容）中，图片存放在 S3 兼容存储。
+gdocs 是一个把 Markdown 正文存放在 Git 仓库里的文档站。站点自身只保存用户、权限、来源和文档索引，正文与历史都在 Forgejo（Gitea 兼容）中，图片存放在 S3 兼容存储。前端界面移植自 [ZeroDream-CN/ZDocs](https://github.com/ZeroDream-CN/ZDocs)，后端使用 Go 重写。
 
 ## 文档分类
 
