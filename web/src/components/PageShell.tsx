@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { loadSite, type SiteInfo } from '../site'
 import { useAuth } from '../auth'
 import { toggleTheme } from '../theme'
+import { useFontScale } from '../useFontScale'
 
 interface Props {
   breadcrumb?: ReactNode
@@ -17,6 +18,7 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
+  const font = useFontScale()
 
   useEffect(() => {
     loadSite().then(setSite).catch(() => undefined)
@@ -28,9 +30,19 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
 
   return (
     <>
-      <div className="switch-theme" title="切换主题" onClick={() => toggleTheme()}>
-        <i className="fas fa-sun" />
-        <i className="fas fa-moon" />
+      <div className="side-tools">
+        <div className="switch-theme" title="切换主题" onClick={() => toggleTheme()}>
+          <i className="fas fa-sun" />
+          <i className="fas fa-moon" />
+        </div>
+        <div className="font-size-control" role="group" aria-label="字号">
+          <button onClick={font.larger} disabled={!font.canGrow} title="放大字号">
+            A+
+          </button>
+          <button onClick={font.smaller} disabled={!font.canShrink} title="缩小字号">
+            A−
+          </button>
+        </div>
       </div>
       <div className={`main-container${menuOpen ? ' nav-open' : ''}`}>
         <div className="navbar">

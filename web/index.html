@@ -20,6 +20,8 @@
         var hour = new Date().getHours();
         var dark = saved ? saved === 'dark' : (hour >= 21 || hour < 6);
         if (dark) document.body.classList.add('theme-dark');
+        var scale = localStorage.getItem('gdocs-font-scale');
+        if (scale) document.documentElement.style.setProperty('--font-scale', scale);
       } catch (e) {}
     })();
   </script>
