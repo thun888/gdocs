@@ -2,11 +2,20 @@ package httpapi
 
 import (
 	"context"
+	"log/slog"
 	"net/http"
+	"net/url"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
+
+type searchTarget struct {
+	Slug string `json:"slug"`
+	Name string `json:"name"`
+	URL  string `json:"url"`
+}
 
 func (a *API) handleSite(c *gin.Context) {
 	ctx := c.Request.Context()
@@ -22,7 +31,27 @@ func (a *API) handleSite(c *gin.Context) {
 		"header_show_avatar": a.boolSetting(ctx, "header_show_avatar"),
 		"header_show_name":   a.boolSetting(ctx, "header_show_name"),
 		"header_show_logout": a.boolSetting(ctx, "header_show_logout"),
+		"search":             a.searchTargets(ctx),
 	})
+}
+
+// 顶栏检索直接落到 Git 服务器，由它自己的代码索引出结果
+func (a *API) searchTargets(ctx context.Context) []searchTarget {
+	list, err := a.store.ListSources(ctx, true)
+	if err != nil {
+		slog.Error("读取来源列表失败", "error", err)
+		return []searchTarget{}
+	}
+	items := make([]searchTarget, 0, len(list))
+	for _, src := range list {
+		items = append(items, searchTarget{
+			Slug: src.Slug,
+			Name: src.Name,
+			URL: strings.TrimSuffix(src.BaseURL, "/") + "/" +
+				url.PathEscape(src.Owner) + "/" + url.PathEscape(src.Repo) + "/search",
+		})
+	}
+	return items
 }
 
 func (a *API) handleGetSettings(c *gin.Context) {

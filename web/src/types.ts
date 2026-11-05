@@ -1,3 +1,9 @@
+export interface SearchTarget {
+  slug: string
+  name: string
+  url: string
+}
+
 export interface SiteInfo {
   name: string
   description: string
@@ -5,6 +11,7 @@ export interface SiteInfo {
   header_show_avatar: boolean
   header_show_name: boolean
   header_show_logout: boolean
+  search: SearchTarget[]
 }
 
 export interface User {

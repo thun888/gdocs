@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import type { ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import { loadSite, type SiteInfo } from '../site'
 import { useAuth } from '../auth'
 import { toggleTheme } from '../theme'
 import { useFontScale } from '../useFontScale'
+import { NavSearch } from './NavSearch'
 
 interface Props {
   breadcrumb?: ReactNode
@@ -21,11 +22,14 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
     header_show_avatar: true,
     header_show_name: true,
     header_show_logout: true,
+    search: [],
   })
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
+  const { slug } = useParams()
   const font = useFontScale()
+  const searchTarget = slug ? site.search?.find((item) => item.slug === slug) : undefined
 
   useEffect(() => {
     loadSite().then(setSite).catch(() => undefined)
@@ -82,6 +86,7 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
               </button>
             </div>
           </div>
+          {searchTarget && <NavSearch target={searchTarget} />}
           <span className="login">
             {user ? (
               <>
