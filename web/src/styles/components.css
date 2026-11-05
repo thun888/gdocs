@@ -963,6 +963,28 @@ body.theme-dark .admin-badge-editor {
   color: var(--text-color);
 }
 
+.admin-form-group {
+  display: flex;
+  flex-direction: column;
+  grid-column: 1 / -1;
+  gap: 6px;
+  color: var(--text-light);
+  font-size: 0.9rem;
+}
+
+.admin-form-checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-4);
+}
+
+.admin-form-checks label {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--text-color);
+}
+
 .admin-form-actions {
   display: flex;
   grid-column: 1 / -1;

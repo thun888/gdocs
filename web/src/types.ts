@@ -2,6 +2,9 @@ export interface SiteInfo {
   name: string
   description: string
   public_read: boolean
+  header_show_avatar: boolean
+  header_show_name: boolean
+  header_show_logout: boolean
 }
 
 export interface User {

@@ -14,7 +14,14 @@ interface Props {
 }
 
 export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props) {
-  const [site, setSite] = useState<SiteInfo>({ name: 'gdocs', description: '', public_read: true })
+  const [site, setSite] = useState<SiteInfo>({
+    name: 'gdocs',
+    description: '',
+    public_read: true,
+    header_show_avatar: true,
+    header_show_name: true,
+    header_show_logout: true,
+  })
   const [menuOpen, setMenuOpen] = useState(false)
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
@@ -78,15 +85,20 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
           <span className="login">
             {user ? (
               <>
-                <span className="login-info">
-                  <a onClick={() => navigate('/admin')}>
-                    <span className="login-avatar initial">{user.avatar}</span> {user.display_name}
+                {(site.header_show_avatar || site.header_show_name) && (
+                  <span className="login-info">
+                    <a onClick={() => navigate('/admin')}>
+                      {site.header_show_avatar && <span className="login-avatar initial">{user.avatar}</span>}
+                      {site.header_show_name && <span className="login-name">{user.display_name}</span>}
+                    </a>
+                  </span>
+                )}
+                {site.header_show_logout && (
+                  <a onClick={() => void logout()}>
+                    <i className="fas fa-sign-out-alt" />
+                    退出
                   </a>
-                </span>
-                <a onClick={() => void logout()}>
-                  <i className="fas fa-sign-out-alt" />
-                  退出
-                </a>
+                )}
               </>
             ) : (
               <a onClick={login}>

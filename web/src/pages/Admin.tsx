@@ -29,7 +29,13 @@ export function Admin() {
   const [groups, setGroups] = useState<AdminGroup[]>([])
   const [users, setUsers] = useState<AdminUser[]>([])
   const [form, setForm] = useState({ ...emptySource })
-  const [settings, setSettings] = useState({ site_name: '', site_desc: '' })
+  const [settings, setSettings] = useState({
+    site_name: '',
+    site_desc: '',
+    header_show_avatar: true,
+    header_show_name: true,
+    header_show_logout: true,
+  })
   const [message, setMessage] = useState('')
 
   const load = useCallback(async () => {
@@ -38,12 +44,24 @@ export function Admin() {
         api.get<{ sources: AdminSource[] }>('/admin/sources'),
         api.get<{ groups: AdminGroup[] }>('/admin/groups'),
         api.get<{ users: AdminUser[] }>('/admin/users'),
-        api.get<{ site_name: string; site_desc: string }>('/admin/settings'),
+        api.get<{
+          site_name: string
+          site_desc: string
+          header_show_avatar: boolean
+          header_show_name: boolean
+          header_show_logout: boolean
+        }>('/admin/settings'),
       ])
       setSources(sourceData.sources ?? [])
       setGroups(groupData.groups ?? [])
       setUsers(userData.users ?? [])
-      setSettings({ site_name: settingData.site_name ?? '', site_desc: settingData.site_desc ?? '' })
+      setSettings({
+        site_name: settingData.site_name ?? '',
+        site_desc: settingData.site_desc ?? '',
+        header_show_avatar: settingData.header_show_avatar ?? true,
+        header_show_name: settingData.header_show_name ?? true,
+        header_show_logout: settingData.header_show_logout ?? true,
+      })
     } catch (err) {
       setMessage(err instanceof ApiError ? err.message : '加载失败')
     }
@@ -373,6 +391,35 @@ export function Admin() {
                   onChange={(event) => setSettings({ ...settings, site_desc: event.target.value })}
                 />
               </label>
+              <div className="admin-form-group">
+                <span>顶栏显示</span>
+                <div className="admin-form-checks">
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.header_show_avatar}
+                      onChange={(event) => setSettings({ ...settings, header_show_avatar: event.target.checked })}
+                    />
+                    头像
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.header_show_name}
+                      onChange={(event) => setSettings({ ...settings, header_show_name: event.target.checked })}
+                    />
+                    名称
+                  </label>
+                  <label>
+                    <input
+                      type="checkbox"
+                      checked={settings.header_show_logout}
+                      onChange={(event) => setSettings({ ...settings, header_show_logout: event.target.checked })}
+                    />
+                    退出按钮
+                  </label>
+                </div>
+              </div>
               <div className="admin-form-actions">
                 <button className="btn btn-primary" onClick={() => void saveSettings()}>
                   保存设置

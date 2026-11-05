@@ -540,6 +540,15 @@ body.theme-dark .switch-theme .fa-moon {
     font-size: 0.9375rem;
   }
 
+  /* 有头像时窄屏只留头像；没头像时仍然显示名称 */
+  .navbar .login .login-name {
+    font-size: 1rem;
+  }
+
+  .navbar .login .login-avatar + .login-name {
+    display: none;
+  }
+
   .navbar .login b {
     font-size: 0.875rem;
   }
