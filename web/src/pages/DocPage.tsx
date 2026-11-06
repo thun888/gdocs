@@ -11,6 +11,7 @@ import { PageShell } from '../components/PageShell'
 import { Sidebar } from '../components/Sidebar'
 import { stripLeadingTitle } from '../markdown'
 import type { DocResponse, TreeNode } from '../types'
+import { useCollapsed } from '../useCollapsed'
 import { useTheme } from '../useTheme'
 
 const CONTENT_WIDTH_KEY = 'gdocs-content-width'
@@ -38,6 +39,7 @@ export function DocPage() {
   const navigate = useNavigate()
   const { canEdit } = useAuth()
   const dark = useTheme()
+  const toc = useCollapsed('gdocs-catalog-collapsed')
 
   const [tree, setTree] = useState<TreeNode[]>([])
   const [doc, setDoc] = useState<DocResponse | null>(null)
@@ -420,8 +422,20 @@ export function DocPage() {
       )}
 
       {catalog.length > 0 && !editing && (
-        <div className="article-catalog">
-          <h3>目录</h3>
+        <div className={`article-catalog${toc.collapsed ? ' collapsed' : ''}`}>
+          <div className="catalog-head">
+            <h3>目录</h3>
+            <button
+              type="button"
+              className="catalog-toggle"
+              title={toc.collapsed ? '展开目录' : '收起目录'}
+              aria-label={toc.collapsed ? '展开目录' : '收起目录'}
+              aria-expanded={!toc.collapsed}
+              onClick={toc.toggle}
+            >
+              <i className={`fas fa-angle-${toc.collapsed ? 'left' : 'right'}`} />
+            </button>
+          </div>
           <ul>
             {catalog.map((item) => (
               <li

@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { loadSite, type SiteInfo } from '../site'
 import { useAuth } from '../auth'
 import { toggleTheme } from '../theme'
+import { useCollapsed } from '../useCollapsed'
 import { useFontScale } from '../useFontScale'
 import { NavSearch } from './NavSearch'
 
@@ -25,6 +26,7 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
     search: [],
   })
   const [menuOpen, setMenuOpen] = useState(false)
+  const nav = useCollapsed('gdocs-sidebar-collapsed')
   const { user, login, logout } = useAuth()
   const navigate = useNavigate()
   const { slug } = useParams()
@@ -41,7 +43,11 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
 
   return (
     <>
-      <div className={`main-container${sidebar ? ' has-sidebar' : ''}${menuOpen ? ' nav-open' : ''}`}>
+      <div
+        className={`main-container${sidebar ? ' has-sidebar' : ''}${menuOpen ? ' nav-open' : ''}${
+          nav.collapsed ? ' nav-collapsed' : ''
+        }`}
+      >
         <div className="navbar">
           <button
             type="button"
@@ -116,6 +122,18 @@ export function PageShell({ breadcrumb, sidebar, children, onDropFiles }: Props)
           </span>
         </div>
         {sidebar}
+        {sidebar && (
+          <button
+            type="button"
+            className="sidebar-toggle"
+            title={nav.collapsed ? '展开目录' : '收起目录'}
+            aria-label={nav.collapsed ? '展开目录' : '收起目录'}
+            aria-expanded={!nav.collapsed}
+            onClick={nav.toggle}
+          >
+            <i className={`fas fa-angle-${nav.collapsed ? 'right' : 'left'}`} />
+          </button>
+        )}
         <div
           className="main-articles"
           onDragOver={(event) => {
